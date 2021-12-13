@@ -2,9 +2,7 @@
 title: "Mapa_10potencialmentInvasores"
 author: "Erola Fenollosa"
 date: "9/9/2021"
-output:
-  pdf_document: default
-  html_document: default
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
