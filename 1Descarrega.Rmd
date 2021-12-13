@@ -1,0 +1,139 @@
+---
+title: "1.Descarrega"
+author: "Erola Fenollosa"
+date: "13/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducció i descarrega de paquets
+L'objectiu d'aquest codi és la descàrrega de les dades de iNaturalist i el filtratge i neteja de les mateixes amb R. És el primer pas del cicle d'anàlisi de les dades. L'adquisició i revisió d'aquestes. El projecte de iNaturalist del qual volem descarregar la informació és: https://www.inaturalist.org/projects/especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps?tab=observations&subtab=table.
+
+Un dels paquets que podem requerir és 'rinat' <https://github.com/ropensci/rinat>, Un paquet desenvolupat per accedir a les dades de 'iNaturalist' a través de APIs.
+
+Carreguem els paquets necesaris:
+```{r}
+#install.packages("rinat")
+library(rinat)
+
+library(ggplot2)
+library(dplyr)
+```
+
+Més info i exemples sobre el paquet rinat:
+```{r}
+# vignette("rinat-intro", package = "rinat")
+```
+
+
+
+### 1. Descàrrega de les dades del Projecte a iNaturalist
+Per a descarregar les dades del projecte podem utilitzar la funció get_inat_obs_project() del paquet rinat. Amb el parametre type indiquem que volem descarregar les observacions i amb Raw = false descarreguem un datarfame.
+```{r}
+act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps", type = "observations", raw=FALSE)
+```
+
+### 2. Revisem el dataset
+Visualitzem els noms de les variables del dataset descarregat
+```{r}
+names(act)
+```
+
+Comptabilitzem el nombre de registres considerant la data actual:
+```{r}
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(act)[1]))
+```
+
+### 3. Explorem el contingut del dataset 
+Revisem els rangs de les diferents variables numèriques
+Fem un histograma:
+```{r}
+hist(act$positional_accuracy)
+```
+
+És destacable el fet que hi ha algunes dades amb una precisió geogràfica molt alta. Tenen poc sentit, Revisem el valor màxim:
+```{r}
+max(act$positional_accuracy, na.rm = TRUE)
+```
+
+Penso que seria necesari filtrar i eliminar aquells registres que no tenen una precisió inferior a 300m per exemple. Revisem quants registres hi ha discretitzant la variable:
+```{r}
+Categories <- cut(act$positional_accuracy, breaks = c(-Inf,10,50, 100, 300,Inf), labels = c("<10","10-50","50-100", "100-300", ">300"))
+table(Categories)
+```
+ 
+Sembla que hi ha 31 registres amb massa poca precisió (> 300m). Eliminem aquests registres:
+
+```{r}
+actp <- act[act$positional_accuracy < 300,]
+hist(actp$positional_accuracy)
+```
+
+
+```{r}
+ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
+  geom_density(alpha=0.4)
+
+```
+
+Sembla que tenim registres sene nom d'espècie, amb NA
+
+```{r}
+unique(actp$taxon.name)
+```
+Contem-los:
+```{r}
+sum(is.na(actp$taxon.name))
+```
+
+Eliminem aquells registres que no tenen nom d'especie:
+```{r}
+actpn <- actp[!is.na(actp$taxon.name),]
+sum(is.na(actpn$taxon.name))
+```
+
+
+Revisem el nombre de registres en el temps. Primer transformem la data
+```{r}
+actpn$observed_on_DATE <- as.Date(actpn$observed_on)
+```
+
+
+```{r}
+ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500)
+
+```
+
+Ara incloem una línia que delimiti la data d'inici del projecte (11 de novembre de 2021) i comptabilitzem els registres anteriors i posteriors:
+```{r}
+ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500) + geom_vline(xintercept=as.Date("2021-11-06"), linetype=4)
+
+```
+
+Vegem-ho amb nombres absoluts:
+```{r}
+a <- cut(actpn$observed_on_DATE, breaks = as.Date(c("2001-11-06", "2021-11-06", "2022-11-06")), labels = c("Abans d'iniciar el projecte","Després d'iniciar el projecte"))
+table(a)
+```
+
+
+Quants registres totals hi ha de cada espècie?
+```{r}
+actpn %>% count(taxon.name, sort = TRUE)
+```
+
+Grafiquem:
+```{r}
+ggplot(actpn, aes(taxon.name)) +
+  geom_bar(fill = "#0073C2FF") + coord_flip()
+```
+
+
+
+
+
+
+
