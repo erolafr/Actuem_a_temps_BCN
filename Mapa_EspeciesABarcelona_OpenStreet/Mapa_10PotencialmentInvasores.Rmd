@@ -161,23 +161,5 @@ leaflet(data = puntsBcn) %>% addTiles() %>%
 ```
 
 
-Ara descarreguem una capa vectorial amb els poligons de parcs i jardins de Barcelona. De moment no estic aconseguint descarregar-la. Caldrà fer-la manualment?? Caldria dibuixar les coordenades del poligon i introduir-les manualment. És una opció. De moment ho deixo pendent. 
-```{r}
-
-
-
-```
-
-
-
-
-
-### HeatMap
-```{r}
-
-```
-
-
-
 
 
