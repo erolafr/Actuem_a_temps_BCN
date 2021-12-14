@@ -2,7 +2,7 @@
 title: "2CalculDensitats"
 author: "Erola Fenollosa"
 date: "14/12/2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
