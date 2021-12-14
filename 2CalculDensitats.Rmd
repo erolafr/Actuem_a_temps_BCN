@@ -17,6 +17,7 @@ Carreguem els paquets necesaris:
 library('sf')
 library(dplyr)
 library(leaflet)
+library(raster)
 ```
 
 Carreguem el dataset generat per 1Descarrega.Rmd:
@@ -71,9 +72,6 @@ leaflet(barcelones) %>%
                    popup = ~popup_html, 
                    radius = 2)
 ```
-
-
-
 
 
 
