@@ -66,12 +66,15 @@ table(Categories)
 ```
  
 Sembla que hi ha 31 registres amb massa poca precisió (> 300m). Eliminem aquests registres:
-
 ```{r}
 actp <- act[act$positional_accuracy < 300,]
 hist(actp$positional_accuracy)
 ```
 
+Revisem els registres actuals:
+```{r}
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actp)[1]))
+```
 
 ```{r}
 ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
@@ -80,10 +83,10 @@ ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
 ```
 
 Sembla que tenim registres sene nom d'espècie, amb NA
-
 ```{r}
 unique(actp$taxon.name)
 ```
+
 Contem-los:
 ```{r}
 sum(is.na(actp$taxon.name))
@@ -132,7 +135,10 @@ ggplot(actpn, aes(taxon.name)) +
 ```
 
 
-
+Revisem els registres finals:
+```{r}
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpn)[1]))
+```
 
 
 

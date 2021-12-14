@@ -174,6 +174,14 @@ hist(actp$positional_accuracy)
 
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
+Revisem els registres actuals:
+
+``` r
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actp)[1]))
+```
+
+    ## [1] "El nombre de registres actual (En data: 2021-12-14 ) del projecte és:  1402"
+
 ``` r
 ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
   geom_density(alpha=0.4)
@@ -196,7 +204,7 @@ ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
     ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
     ## -Inf
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](1Descarrega_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 Sembla que tenim registres sene nom d’espècie, amb NA
 
@@ -242,7 +250,7 @@ ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="lin
 
     ## Warning: Removed 1 rows containing non-finite values (stat_bin).
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](1Descarrega_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Ara incloem una línia que delimiti la data d’inici del projecte (11 de
 novembre de 2021) i comptabilitzem els registres anteriors i posteriors:
@@ -253,7 +261,7 @@ ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="lin
 
     ## Warning: Removed 1 rows containing non-finite values (stat_bin).
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](1Descarrega_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 Vegem-ho amb nombres absoluts:
 
@@ -296,4 +304,12 @@ ggplot(actpn, aes(taxon.name)) +
   geom_bar(fill = "#0073C2FF") + coord_flip()
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](1Descarrega_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+Revisem els registres finals:
+
+``` r
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpn)[1]))
+```
+
+    ## [1] "El nombre de registres actual (En data: 2021-12-14 ) del projecte és:  1358"
