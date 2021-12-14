@@ -14,7 +14,9 @@ L'objectiu d'aquest codi és generar el càlcul de les densitats de presència d
 
 Carreguem els paquets necesaris:
 ```{r}
-library(drake)
+library('sf')
+library(dplyr)
+library(leaflet)
 ```
 
 Carreguem el dataset generat per 1Descarrega.Rmd:
@@ -25,17 +27,50 @@ actpns <- read.csv(file = 'actpns.csv')
 ## Delimitació de l'àrea global del projecte
 En primer lloc necesitem quantificar l'àrea del projecte. Es va definir el projecte a iNaturalist (https://www.inaturalist.org/projects/especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps?tab=about) en l'àrea del Barcelonés (https://www.inaturalist.org/places/140344), però cal descarregar una capa per a calcular l'àrea que suposa aquest polígon. A wikipèdia s'indica que l'àrea ocupa 145,75 km², però volem desenvolupar el codi per a poder mesurar-la. 
 
-Podem descarregar un csv amb els limits comarcals a partir de https://www.gis-blog.com/r-raster-data-acquisition/
+Podem descarregar un csv amb els limits del Barcelonés a partir de https://vangdata.carto.com/tables/shapefiles_catalunya_comarcas/public/map. Descarreguem els arxius del Barcelonés i els posem a la carpeta. 
 
+```{r}
+barcelones <- shapefile('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+plot(barcelones)
+```
 
+N'obtenim l'àrea en Km2:
+```{r}
+area(barcelones)/1000000
+```
 
+### Mapa dels registres
+En primer lloc filtrarem els registres dins l'àrea (teòricament haurien de entrar tots dins l'àrea). Per a fer-ho convertirem el dataframe de iNaturalist amb les dades de registres a un objecte de tipus sf.
+Basat en: https://ucanr-igis.github.io/tech_notes/inaturalist_map.html
+```{r}
+inat_obs_sf <-  actpns %>% 
+  st_as_sf(coords=c("longitude", "latitude"), crs=4326)
 
-https://vangdata.carto.com/tables/shapefiles_catalunya_comarcas/public/map
+dim(inat_obs_sf)
+```
 
+Fem el filtratge de l'àrea, per a fer-ho necesitem transformar el shp de l'àrea en un sf, el tornem a carregar amb la funció st_read:
+```{r}
+barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 
+inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
+nrow(inat_obs_pcsp_sf)
+```
 
+```{r}
+inat_obs_pcsp_popup_sf <- inat_obs_pcsp_sf %>% 
+  mutate(popup_html = paste0("<i>", taxon.name, "</i></p>")
+  )
+```
 
-
+```{r}
+leaflet(barcelones) %>% 
+  addProviderTiles("Esri.WorldStreetMap") %>% 
+  addPolygons() %>% 
+  addCircleMarkers(data = inat_obs_pcsp_popup_sf,
+                   popup = ~popup_html, 
+                   radius = 2)
+```
 
 
 
