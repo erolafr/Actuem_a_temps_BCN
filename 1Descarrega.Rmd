@@ -134,6 +134,13 @@ ggplot(actpn, aes(taxon.name)) +
   geom_bar(fill = "#0073C2FF") + coord_flip()
 ```
 
+Guardem el dataset:
+```{r}
+# Eliminem les variables de tipus list dins del dataset per a poder guardar-lo:
+actpns = subset(actpn, select = -c(tag_list, photos))
+write.csv(actpns,"actpns.csv")
+```
+
 
 Revisem els registres finals:
 ```{r}

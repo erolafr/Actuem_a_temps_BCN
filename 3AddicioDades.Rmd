@@ -1,0 +1,25 @@
+---
+title: "3AddicioDades"
+author: "Erola Fenollosa"
+date: "14/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducció i descarrega de paquets
+
+
+## Fonts de dades d'interès
+https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-parcs
+https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-zona
+https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-viari
+
+
+https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbres-interes-local
+
+
+https://opendata-ajuntament.barcelona.cat/data/ca/dataset/cobertura-vegetal-ndvi 
+https://opendata-ajuntament.barcelona.cat/data/ca/dataset/culturailleure-parcsjardins

@@ -9,22 +9,37 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Introducció i descarrega de paquets
+L'objectiu d'aquest codi és generar el càlcul de les densitats de presència de les espècies susceptibles a ser invasores a la ciutat de Barcelona del projecte "Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona". El codi permetrà calcular el nombre de registres/m2 mitjà que hi ha a la ciutat de forma global i també per a cada espècie, possibilitat també l'anàlisi de zones en concret introduint polígons d'espais amb major esforç de mostreig o amb alguna peculiaritat.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+Carreguem els paquets necesaris:
+```{r}
+library(drake)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+Carreguem el dataset generat per 1Descarrega.Rmd:
+```{r}
+actpns <- read.csv(file = 'actpns.csv')
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Delimitació de l'àrea global del projecte
+En primer lloc necesitem quantificar l'àrea del projecte. Es va definir el projecte a iNaturalist (https://www.inaturalist.org/projects/especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps?tab=about) en l'àrea del Barcelonés (https://www.inaturalist.org/places/140344), però cal descarregar una capa per a calcular l'àrea que suposa aquest polígon. A wikipèdia s'indica que l'àrea ocupa 145,75 km², però volem desenvolupar el codi per a poder mesurar-la. 
+
+Podem descarregar un csv amb els limits comarcals a partir de https://www.gis-blog.com/r-raster-data-acquisition/
+
+
+
+
+https://vangdata.carto.com/tables/shapefiles_catalunya_comarcas/public/map
+
+
+
+
+
+
+
+
+
+
+
+
