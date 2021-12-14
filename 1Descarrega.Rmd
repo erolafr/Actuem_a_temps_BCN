@@ -2,7 +2,7 @@
 title: "1.Descarrega"
 author: "Erola Fenollosa"
 date: "13/12/2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
