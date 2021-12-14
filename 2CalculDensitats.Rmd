@@ -3,6 +3,7 @@ title: "2CalculDensitats"
 author: "Erola Fenollosa"
 date: "14/12/2021"
 output: github_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
