@@ -136,8 +136,8 @@ actpn %>% count(taxon.name, sort = TRUE)
 
 Veiem-ho gràficament:
 ```{r}
-ggplot(actpn, aes(taxon.name)) +
-  geom_bar(fill = "#0073C2FF") + coord_flip()
+ggplot(actpn,aes(x = fct_infreq(taxon.name))) + 
+	geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
 ```
 
 Descartarem aquells taxons que estàn molt poc representats, eliminarem els taxons amb menys de 30 registres. 
