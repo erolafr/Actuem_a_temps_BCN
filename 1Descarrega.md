@@ -21,52 +21,13 @@ Carreguem els paquets necesaris:
 #install.packages("rinat")
 #install.packages("ecospat")
 library(rinat)
-```
 
-    ## Warning: package 'rinat' was built under R version 4.1.2
-
-``` r
 library(ggplot2)
 library(dplyr)
-```
 
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
-
-``` r
 library(ecospat)
+library(tidyverse)
 ```
-
-    ## Warning: package 'ecospat' was built under R version 4.1.2
-
-    ## Loading required package: ade4
-
-    ## Warning: package 'ade4' was built under R version 4.1.2
-
-    ## Loading required package: ape
-
-    ## Warning: package 'ape' was built under R version 4.1.2
-
-    ## Loading required package: gbm
-
-    ## Warning: package 'gbm' was built under R version 4.1.2
-
-    ## Loaded gbm 2.1.8
-
-    ## Loading required package: sp
-
-    ## Registered S3 methods overwritten by 'adehabitatMA':
-    ##   method                       from
-    ##   print.SpatialPixelsDataFrame sp  
-    ##   print.SpatialPixels          sp
 
 Més info i exemples sobre el paquet rinat:
 
@@ -84,26 +45,6 @@ descarreguem un datarfame.
 ``` r
 act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps", type = "observations", raw=FALSE)
 ```
-
-    ## 1441 records
-
-    ## Getting records 0-200
-
-    ## Getting records up to 400
-
-    ## Getting records up to 600
-
-    ## Getting records up to 800
-
-    ## Getting records up to 1000
-
-    ## Getting records up to 1200
-
-    ## Getting records up to 1400
-
-    ## Getting records up to 1600
-
-    ## Done.
 
 ### 2\. Revisió del dataset i comptatge de registres
 
@@ -217,23 +158,6 @@ ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
   geom_density(alpha=0.4)
 ```
 
-    ## Warning: Removed 47 rows containing non-finite values (stat_density).
-
-    ## Warning: Groups with fewer than two data points have been dropped.
-    
-    ## Warning: Groups with fewer than two data points have been dropped.
-    
-    ## Warning: Groups with fewer than two data points have been dropped.
-
-    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
-    ## -Inf
-    
-    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
-    ## -Inf
-    
-    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
-    ## -Inf
-
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ### 4\. Eliminació de registres buits
@@ -282,8 +206,6 @@ actpn$observed_on_DATE <- as.Date(actpn$observed_on)
 ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500)
 ```
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_bin).
-
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Ara incloem una línia que delimiti la data d’inici del projecte (11 de
@@ -292,8 +214,6 @@ novembre de 2021) i comptabilitzem els registres anteriors i posteriors:
 ``` r
 ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500) + geom_vline(xintercept=as.Date("2021-11-06"), linetype=4)
 ```
-
-    ## Warning: Removed 1 rows containing non-finite values (stat_bin).
 
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
@@ -308,8 +228,9 @@ table(a)
     ##   Abans d'iniciar el projecte Després d'iniciar el projecte 
     ##                           246                          1114
 
-\#\#\#6. Eliminació d’espècies poc representades Primer calculem quants
-registres totals hi ha de cada espècie:
+### 6\. Eliminació d’espècies poc representades
+
+Primer calculem quants registres totals hi ha de cada espècie:
 
 ``` r
 actpn %>% count(taxon.name, sort = TRUE)
@@ -335,8 +256,8 @@ actpn %>% count(taxon.name, sort = TRUE)
 Veiem-ho gràficament:
 
 ``` r
-ggplot(actpn, aes(taxon.name)) +
-  geom_bar(fill = "#0073C2FF") + coord_flip()
+ggplot(actpn,aes(x = fct_infreq(taxon.name))) + 
+    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
 ```
 
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->

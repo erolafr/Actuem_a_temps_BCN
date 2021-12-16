@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 L'objectiu d'aquest codi és generar el càlcul de les densitats de presència de les espècies susceptibles a ser invasores a la ciutat de Barcelona del projecte "Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona". El codi permetrà calcular el nombre de registres/m2 mitjà que hi ha a la ciutat de forma global i també per a cada espècie, possibilitat també l'anàlisi de zones en concret introduint polígons d'espais amb major esforç de mostreig o amb alguna peculiaritat.
 
 Carreguem els paquets necesaris:
-```{r}
+```{r echo=T, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 library('sf')
 library(dplyr)
 library(leaflet)
@@ -53,7 +53,7 @@ dim(inat_obs_sf)
 ```
 
 Fem el filtratge de l'àrea, per a fer-ho necesitem transformar el shp de l'àrea en un sf, el tornem a carregar amb la funció st_read:
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
 nrow(inat_obs_pcsp_sf)
@@ -83,7 +83,7 @@ dens
 Per a evaluar si hi ha diferències en les diferents zones de Barcelona, per exemple entre diferents barris, ens caldrà definir els polígons pels quals volem quantificar els registres. 
 
 Descarreguem l'arxiu shp de: http://w20.bcn.cat/cartobcn/default.aspx amb els districtes de barcelona i grafiquem:
-```{r}
+```{r, warning=FALSE, error=FALSE, message=FALSE}
 districtes <- shapefile('CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
 plot(districtes)
 ```
@@ -95,7 +95,7 @@ arees
 ```
 
 Per a tenir shp de cada districte els descarreguem de:  https://vangdata.carto.com/tables/shapefiles_barcelona_distrito/public
-```{r}
+```{r echo=T, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 ciutatvella<- st_read('Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
 eixample <- st_read('Districtes/eixample/shapefiles_barcelona_distrito.shp')
 santsmontjuic <- st_read('Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
@@ -116,7 +116,7 @@ num_registres <- function(area, inatdf) {
 } 
 ```
 
-```{r}
+```{r echo=T, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 arees$registres<- as.numeric(c(num_registres(ciutatvella, inat_obs_sf),
                     num_registres(eixample, inat_obs_sf),
                     num_registres(santsmontjuic, inat_obs_sf),
@@ -130,8 +130,10 @@ arees$registres<- as.numeric(c(num_registres(ciutatvella, inat_obs_sf),
 
 arees$registres[6] <- nrow(inat_obs_sf) - sum(arees$registres, na.rm = TRUE)
 arees$densitat.global <- arees$registres/arees$area
-arees
 
+```
+```{r}
+arees
 ```
 
 Ordenem per densitat global:

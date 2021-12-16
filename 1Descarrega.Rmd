@@ -15,7 +15,7 @@ L'objectiu d'aquest codi és la descàrrega de les dades de iNaturalist i el fil
 Un dels paquets que podem requerir és 'rinat' <https://github.com/ropensci/rinat>, Un paquet desenvolupat per accedir a les dades de 'iNaturalist' a través de APIs.
 
 Carreguem els paquets necesaris:
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 #install.packages("rinat")
 #install.packages("ecospat")
 library(rinat)
@@ -24,6 +24,7 @@ library(ggplot2)
 library(dplyr)
 
 library(ecospat)
+library(tidyverse)
 ```
 
 Més info i exemples sobre el paquet rinat:
@@ -35,7 +36,7 @@ Més info i exemples sobre el paquet rinat:
 
 ### 1. Descàrrega de les dades del Projecte a iNaturalist
 Per a descarregar les dades del projecte podem utilitzar la funció get_inat_obs_project() del paquet rinat. Amb el parametre type indiquem que volem descarregar les observacions i amb Raw = false descarreguem un datarfame.
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps", type = "observations", raw=FALSE)
 ```
 
@@ -79,7 +80,7 @@ print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projec
 ```
 
 Per especie:
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
   geom_density(alpha=0.4)
 
@@ -110,13 +111,13 @@ actpn$observed_on_DATE <- as.Date(actpn$observed_on)
 ```
 
 
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500)
 
 ```
 
 Ara incloem una línia que delimiti la data d'inici del projecte (11 de novembre de 2021) i comptabilitzem els registres anteriors i posteriors:
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500) + geom_vline(xintercept=as.Date("2021-11-06"), linetype=4)
 
 ```
@@ -128,7 +129,7 @@ table(a)
 ```
 
 
-###6. Eliminació d'espècies poc representades
+### 6. Eliminació d'espècies poc representades
 Primer calculem quants registres totals hi ha de cada espècie:
 ```{r}
 actpn %>% count(taxon.name, sort = TRUE)

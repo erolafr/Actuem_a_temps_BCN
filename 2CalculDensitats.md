@@ -18,65 +18,11 @@ Carreguem els paquets necesaris:
 
 ``` r
 library('sf')
-```
-
-    ## Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
-
-``` r
 library(dplyr)
-```
-
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
-
-``` r
 library(leaflet)
 library(raster)
-```
-
-    ## Warning: package 'raster' was built under R version 4.1.2
-
-    ## Loading required package: sp
-
-    ## 
-    ## Attaching package: 'raster'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     select
-
-``` r
 library(tidyverse)
 ```
-
-    ## Warning: package 'tidyverse' was built under R version 4.1.2
-
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
-
-    ## v ggplot2 3.3.5     v purrr   0.3.4
-    ## v tibble  3.1.4     v stringr 1.4.0
-    ## v tidyr   1.1.4     v forcats 0.5.1
-    ## v readr   2.1.1
-
-    ## Warning: package 'tidyr' was built under R version 4.1.2
-
-    ## Warning: package 'readr' was built under R version 4.1.2
-
-    ## Warning: package 'forcats' was built under R version 4.1.2
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x tidyr::extract() masks raster::extract()
-    ## x dplyr::filter()  masks stats::filter()
-    ## x dplyr::lag()     masks stats::lag()
-    ## x raster::select() masks dplyr::select()
 
 Carreguem el dataset generat per 1Descarrega.Rmd:
 
@@ -135,29 +81,9 @@ l’àrea en un sf, el tornem a carregar amb la funció st\_read:
 
 ``` r
 barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
-```
-
-    ## Reading layer `shapefiles_catalunya_comarcas' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\shapefiles_catalunya_comarcas\shapefiles_catalunya_comarcas.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 5 fields
-    ## Geometry type: MULTIPOLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.052651 ymin: 41.31702 xmax: 2.269917 ymax: 41.49271
-    ## Geodetic CRS:  WGS 84
-
-``` r
 inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
-```
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-``` r
 nrow(inat_obs_pcsp_sf)
 ```
-
-    ## [1] 1339
 
 Calculem la densitat total de registres per km2:
 
@@ -214,14 +140,6 @@ amb els districtes de barcelona i grafiquem:
 
 ``` r
 districtes <- shapefile('CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
-```
-
-    ## Warning in OGRSpatialRef(dsn, layer, morphFromESRI = morphFromESRI, dumpSRS =
-    ## dumpSRS, : Discarded datum European_Terrestrial_Reference_System_1989 in Proj4
-    ## definition: +proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m
-    ## +no_defs
-
-``` r
 plot(districtes)
 ```
 
@@ -251,121 +169,16 @@ Per a tenir shp de cada districte els descarreguem de:
 
 ``` r
 ciutatvella<- st_read('Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\ciutatvella\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.16311 ymin: 41.35763 xmax: 2.199723 ymax: 41.39222
-    ## Geodetic CRS:  WGS 84
-
-``` r
 eixample <- st_read('Districtes/eixample/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\eixample\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.142324 ymin: 41.37498 xmax: 2.186825 ymax: 41.41204
-    ## Geodetic CRS:  WGS 84
-
-``` r
 santsmontjuic <- st_read('Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\SantsMontjuic\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.10147 ymin: 41.31692 xmax: 2.183542 ymax: 41.38547
-    ## Geodetic CRS:  WGS 84
-
-``` r
 lescorts <- st_read('Districtes/lescorts/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\lescorts\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.097872 ymin: 41.37568 xmax: 2.144379 ymax: 41.40112
-    ## Geodetic CRS:  WGS 84
-
-``` r
 sarriasantgervasi <- st_read('Districtes/sarriasantgervasi/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\sarriasantgervasi\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: MULTIPOLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.052451 ymin: 41.39008 xmax: 2.155661 ymax: 41.43716
-    ## Geodetic CRS:  WGS 84
-
-``` r
 # gracia <- st_read('Districtes/gracia/shapefiles_barcelona_distrito.shp')
 hortaguinardo <- st_read('Districtes/hortaguinardo/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\hortaguinardo\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.120446 ymin: 41.40696 xmax: 2.18084 ymax: 41.45046
-    ## Geodetic CRS:  WGS 84
-
-``` r
 noubarris<- st_read('Districtes/Nou_Barris/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\Nou_Barris\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.155667 ymin: 41.42544 xmax: 2.188913 ymax: 41.46825
-    ## Geodetic CRS:  WGS 84
-
-``` r
 santandreu<- st_read('Districtes/santandreu/shapefiles_barcelona_distrito.shp')
-```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\santandreu\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.176161 ymin: 41.41367 xmax: 2.210601 ymax: 41.46213
-    ## Geodetic CRS:  WGS 84
-
-``` r
 santmarti<- st_read('Districtes/santmarti/shapefiles_barcelona_distrito.shp')
 ```
-
-    ## Reading layer `shapefiles_barcelona_distrito' from data source 
-    ##   `C:\Users\erola\Documents\ANALISIACTUEM\Actuem_a_temps_BCN\Districtes\santmarti\shapefiles_barcelona_distrito.shp' 
-    ##   using driver `ESRI Shapefile'
-    ## Simple feature collection with 1 feature and 12 fields
-    ## Geometry type: POLYGON
-    ## Dimension:     XY
-    ## Bounding box:  xmin: 2.175419 ymin: 41.38353 xmax: 2.229203 ymax: 41.43017
-    ## Geodetic CRS:  WGS 84
 
 Afegim la densitat total d’espècies, cal filtrar els registres en cada
 districte. Faig una funció per a comptar registres per area
@@ -388,56 +201,12 @@ arees$registres<- as.numeric(c(num_registres(ciutatvella, inat_obs_sf),
                     num_registres(noubarris, inat_obs_sf),
                     num_registres(santandreu, inat_obs_sf),
                     num_registres(santmarti, inat_obs_sf)))
-```
 
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 6
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 127
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 267
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 294
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 54
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 102
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 69
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 3
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## [1] 346
-
-``` r
 arees$registres[6] <- nrow(inat_obs_sf) - sum(arees$registres, na.rm = TRUE)
 arees$densitat.global <- arees$registres/arees$area
+```
+
+``` r
 arees
 ```
 
@@ -483,7 +252,7 @@ plot(districtes, col=datcol, main = "Densitat global d'espècies susceptibles \n
 legend('topright', legend=c("0.45 registres/km2", "48.9 registres/km2"), col=c("lightgreen","red"), pch=16)
 ```
 
-![](2CalculDensitats_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](2CalculDensitats_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ### Mapa registres iNaturalist
 
