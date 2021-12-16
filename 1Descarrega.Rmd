@@ -17,10 +17,13 @@ Un dels paquets que podem requerir és 'rinat' <https://github.com/ropensci/rina
 Carreguem els paquets necesaris:
 ```{r}
 #install.packages("rinat")
+#install.packages("ecospat")
 library(rinat)
 
 library(ggplot2)
 library(dplyr)
+
+library(ecospat)
 ```
 
 Més info i exemples sobre el paquet rinat:
@@ -36,7 +39,7 @@ Per a descarregar les dades del projecte podem utilitzar la funció get_inat_obs
 act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps", type = "observations", raw=FALSE)
 ```
 
-### 2. Revisem el dataset
+### 2. Revisió del dataset i comptatge de registres
 Visualitzem els noms de les variables del dataset descarregat
 ```{r}
 names(act)
@@ -47,9 +50,8 @@ Comptabilitzem el nombre de registres considerant la data actual:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(act)[1]))
 ```
 
-### 3. Explorem el contingut del dataset 
-Revisem els rangs de les diferents variables numèriques
-Fem un histograma:
+### 3. Filtrem per precisió geogràfica
+Revisem els rangs de les diferents variables numèriques. Fem un histograma:
 ```{r}
 hist(act$positional_accuracy)
 ```
@@ -76,12 +78,14 @@ Revisem els registres actuals:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actp)[1]))
 ```
 
+Per especie:
 ```{r}
 ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
   geom_density(alpha=0.4)
 
 ```
 
+### 4. Eliminació de registres buits
 Sembla que tenim registres sene nom d'espècie, amb NA
 ```{r}
 unique(actp$taxon.name)
@@ -99,6 +103,7 @@ sum(is.na(actpn$taxon.name))
 ```
 
 
+### 5. Gràfic d'acumulació de registres
 Revisem el nombre de registres en el temps. Primer transformem la data
 ```{r}
 actpn$observed_on_DATE <- as.Date(actpn$observed_on)
@@ -123,28 +128,60 @@ table(a)
 ```
 
 
-Quants registres totals hi ha de cada espècie?
+###6. Eliminació d'espècies poc representades
+Primer calculem quants registres totals hi ha de cada espècie:
 ```{r}
 actpn %>% count(taxon.name, sort = TRUE)
 ```
 
-Grafiquem:
+Veiem-ho gràficament:
 ```{r}
 ggplot(actpn, aes(taxon.name)) +
   geom_bar(fill = "#0073C2FF") + coord_flip()
 ```
 
-Guardem el dataset:
+Descartarem aquells taxons que estàn molt poc representats, eliminarem els taxons amb menys de 30 registres. 
 ```{r}
-# Eliminem les variables de tipus list dins del dataset per a poder guardar-lo:
-actpns = subset(actpn, select = -c(tag_list, photos))
-write.csv(actpns,"actpns.csv")
+recompte <- actpn %>% count(taxon.name, sort = TRUE)
+recompte_30 <- recompte[recompte$n > 30,]
+actpnr <- actpn[actpn$taxon.name %in% recompte_30$taxon.name,]
+unique(actpnr$taxon.name) # Imprimim amb quins taxons continuem l'anàlisi i les dimensions
+dim(actpnr)
+```
+
+### 7. Eliminació de duplicats
+Al tractar-se d'una identificació col·lectiva, és possible que la presència d'alguna espècie en un determinat indret hagi estat identificada per duplicat. Ens interessa eliminar aquestes identificacions duplicades per no esviaixar en nombre final de registres però cal assegurar que no es tractava simplement d'individus molt propers. Per a fer-ho, proposo filtrar registres d'una mateixa espècie amb una elevada proximitat, definint elevada proximitat com a 50cm de distància, és a dir 0.5m de distància. Aquest procés es coneix també com eliminació d'agregats. Proposo l'ús de la funció 'ecospat.occ.desaggregation'(https://rdrr.io/cran/ecospat/man/ecospat.occ.desaggregation.html), del paquet 'ecospat' desenvolupat per Di Cola et al. (2016) (https://rdrr.io/cran/ecospat/), que permet filtrar registres propers en base a una distància a definir per l'usuari i permet identificar grups dins del dataset. 
+Abans però caldrà revisar si hi ha duplicats i descartarem espècies amb menys de 10 registres. 
+
+```{r}
+xydf <- data.frame(x=actpnr$latitude, y=actpnr$longitude, by=actpnr$taxon.name) # creem un dataframe per a introduir a la funció. 
+xydf_1<-xydf[!duplicated(xydf),] # Es necessari filtrar duplicats
+
+prov <- ecospat.occ.desaggregation(xydf_1, min.dist = 0.008333/1000*0.5, by = 'by') # Introduim la distància que acceptarem en graus, tenint en compte que 0.008333 corresponen a 1km a l'equador. Considero com a distància minima a acceptar 0.5m.
+```
+
+Ara recuperem les dades d'aquests registres que hem seleccionat desagregant les dades:
+```{r}
+prov$mat <- as.numeric(prov$x) * as.numeric(prov$y)
+actpnr$mat1 <- as.numeric(actpnr$latitude) * as.numeric(actpnr$longitude)
+actpnrf <- merge(prov,actpnr, by.x="mat", by.y="mat1")
+actpnrf <- subset(actpnrf, select = -c(mat, x, y, by))
+dim(actpnrf) # Revisem nombre de registres
 ```
 
 
+### 8. Exportem el dataset
+Guardem el dataset:
+```{r}
+# Eliminem les variables de tipus list dins del dataset per a poder guardar-lo:
+actpnrfs = subset(actpnrf, select = -c(tag_list, photos))
+write.csv(actpnrfs,"actpnrfs.csv")
+```
+
+### 9. Revisió de nombre de registres finals
 Revisem els registres finals:
 ```{r}
-print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpn)[1]))
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpnrfs)[1]))
 ```
 
 

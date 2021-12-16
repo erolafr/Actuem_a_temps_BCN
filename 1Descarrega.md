@@ -19,6 +19,7 @@ Carreguem els paquets necesaris:
 
 ``` r
 #install.packages("rinat")
+#install.packages("ecospat")
 library(rinat)
 ```
 
@@ -40,6 +41,33 @@ library(dplyr)
     ## 
     ##     intersect, setdiff, setequal, union
 
+``` r
+library(ecospat)
+```
+
+    ## Warning: package 'ecospat' was built under R version 4.1.2
+
+    ## Loading required package: ade4
+
+    ## Warning: package 'ade4' was built under R version 4.1.2
+
+    ## Loading required package: ape
+
+    ## Warning: package 'ape' was built under R version 4.1.2
+
+    ## Loading required package: gbm
+
+    ## Warning: package 'gbm' was built under R version 4.1.2
+
+    ## Loaded gbm 2.1.8
+
+    ## Loading required package: sp
+
+    ## Registered S3 methods overwritten by 'adehabitatMA':
+    ##   method                       from
+    ##   print.SpatialPixelsDataFrame sp  
+    ##   print.SpatialPixels          sp
+
 Més info i exemples sobre el paquet rinat:
 
 ``` r
@@ -57,7 +85,7 @@ descarreguem un datarfame.
 act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps", type = "observations", raw=FALSE)
 ```
 
-    ## 1435 records
+    ## 1441 records
 
     ## Getting records 0-200
 
@@ -77,7 +105,7 @@ act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-a
 
     ## Done.
 
-### 2\. Revisem el dataset
+### 2\. Revisió del dataset i comptatge de registres
 
 Visualitzem els noms de les variables del dataset descarregat
 
@@ -129,11 +157,11 @@ Comptabilitzem el nombre de registres considerant la data actual:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(act)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-14 ) del projecte és:  1435"
+    ## [1] "El nombre de registres actual (En data: 2021-12-16 ) del projecte és:  1441"
 
-### 3\. Explorem el contingut del dataset
+### 3\. Filtrem per precisió geogràfica
 
-Revisem els rangs de les diferents variables numèriques Fem un
+Revisem els rangs de les diferents variables numèriques. Fem un
 histograma:
 
 ``` r
@@ -162,7 +190,7 @@ table(Categories)
 
     ## Categories
     ##     <10   10-50  50-100 100-300    >300 
-    ##    1164     152      29      15      31
+    ##    1166     152      30      15      31
 
 Sembla que hi ha 31 registres amb massa poca precisió (\> 300m).
 Eliminem aquests registres:
@@ -180,14 +208,16 @@ Revisem els registres actuals:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actp)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-14 ) del projecte és:  1402"
+    ## [1] "El nombre de registres actual (En data: 2021-12-16 ) del projecte és:  1408"
+
+Per especie:
 
 ``` r
 ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
   geom_density(alpha=0.4)
 ```
 
-    ## Warning: Removed 44 rows containing non-finite values (stat_density).
+    ## Warning: Removed 47 rows containing non-finite values (stat_density).
 
     ## Warning: Groups with fewer than two data points have been dropped.
     
@@ -206,6 +236,8 @@ ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
 
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
+### 4\. Eliminació de registres buits
+
 Sembla que tenim registres sene nom d’espècie, amb NA
 
 ``` r
@@ -217,7 +249,7 @@ unique(actp$taxon.name)
     ##  [5] "Senecio angulatus"            "Mirabilis jalapa"            
     ##  [7] "Mesembryanthemum cordifolium" NA                            
     ##  [9] "Lantana camara"               "Lantana"                     
-    ## [11] "Lantana montevidensis"        "Ipomoea indica"              
+    ## [11] "Ipomoea indica"               "Lantana montevidensis"       
     ## [13] "Lantana × urticoides"         "Lantana × hybrida"           
     ## [15] "Lantana achyranthifolia"      "Lantana velutina"
 
@@ -227,7 +259,7 @@ Contem-los:
 sum(is.na(actp$taxon.name))
 ```
 
-    ## [1] 44
+    ## [1] 47
 
 Eliminem aquells registres que no tenen nom d’especie:
 
@@ -237,6 +269,8 @@ sum(is.na(actpn$taxon.name))
 ```
 
     ## [1] 0
+
+### 5\. Gràfic d’acumulació de registres
 
 Revisem el nombre de registres en el temps. Primer transformem la data
 
@@ -272,24 +306,25 @@ table(a)
 
     ## a
     ##   Abans d'iniciar el projecte Després d'iniciar el projecte 
-    ##                           245                          1112
+    ##                           246                          1114
 
-Quants registres totals hi ha de cada espècie?
+\#\#\#6. Eliminació d’espècies poc representades Primer calculem quants
+registres totals hi ha de cada espècie:
 
 ``` r
 actpn %>% count(taxon.name, sort = TRUE)
 ```
 
     ##                      taxon.name   n
-    ## 1  Mesembryanthemum cordifolium 336
+    ## 1  Mesembryanthemum cordifolium 337
     ## 2           Dichondra micrantha 266
     ## 3              Mirabilis jalapa 201
     ## 4             Ligustrum lucidum 134
-    ## 5        Kalanchoe × houghtonii  86
+    ## 5        Kalanchoe × houghtonii  87
     ## 6                Lantana camara  84
     ## 7           Cenchrus longisetus  79
     ## 8             Senecio angulatus  66
-    ## 9                Ipomoea indica  59
+    ## 9                Ipomoea indica  60
     ## 10                      Lantana  32
     ## 11        Lantana montevidensis  10
     ## 12            Lantana × hybrida   2
@@ -297,7 +332,7 @@ actpn %>% count(taxon.name, sort = TRUE)
     ## 14      Lantana achyranthifolia   1
     ## 15             Lantana velutina   1
 
-Grafiquem:
+Veiem-ho gràficament:
 
 ``` r
 ggplot(actpn, aes(taxon.name)) +
@@ -306,10 +341,101 @@ ggplot(actpn, aes(taxon.name)) +
 
 ![](1Descarrega_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
+Descartarem aquells taxons que estàn molt poc representats, eliminarem
+els taxons amb menys de 30 registres.
+
+``` r
+recompte <- actpn %>% count(taxon.name, sort = TRUE)
+recompte_30 <- recompte[recompte$n > 30,]
+actpnr <- actpn[actpn$taxon.name %in% recompte_30$taxon.name,]
+unique(actpnr$taxon.name) # Imprimim amb quins taxons continuem l'anàlisi i les dimensions
+```
+
+    ##  [1] "Cenchrus longisetus"          "Kalanchoe × houghtonii"      
+    ##  [3] "Ligustrum lucidum"            "Dichondra micrantha"         
+    ##  [5] "Senecio angulatus"            "Mirabilis jalapa"            
+    ##  [7] "Mesembryanthemum cordifolium" "Lantana camara"              
+    ##  [9] "Lantana"                      "Ipomoea indica"
+
+``` r
+dim(actpnr)
+```
+
+    ## [1] 1346   75
+
+### 7\. Eliminació de duplicats
+
+Al tractar-se d’una identificació col·lectiva, és possible que la
+presència d’alguna espècie en un determinat indret hagi estat
+identificada per duplicat. Ens interessa eliminar aquestes
+identificacions duplicades per no esviaixar en nombre final de registres
+però cal assegurar que no es tractava simplement d’individus molt
+propers. Per a fer-ho, proposo filtrar registres d’una mateixa espècie
+amb una elevada proximitat, definint elevada proximitat com a 50cm de
+distància, és a dir 0.5m de distància. Aquest procés es coneix també com
+eliminació d’agregats. Proposo l’ús de la funció
+‘ecospat.occ.desaggregation’(<https://rdrr.io/cran/ecospat/man/ecospat.occ.desaggregation.html>),
+del paquet ‘ecospat’ desenvolupat per Di Cola et al. (2016)
+(<https://rdrr.io/cran/ecospat/>), que permet filtrar registres propers
+en base a una distància a definir per l’usuari i permet identificar
+grups dins del dataset. Abans però caldrà revisar si hi ha duplicats i
+descartarem espècies amb menys de 10 registres.
+
+``` r
+xydf <- data.frame(x=actpnr$latitude, y=actpnr$longitude, by=actpnr$taxon.name) # creem un dataframe per a introduir a la funció. 
+xydf_1<-xydf[!duplicated(xydf),] # Es necessari filtrar duplicats
+
+prov <- ecospat.occ.desaggregation(xydf_1, min.dist = 0.008333/1000*0.5, by = 'by') # Introduim la distància que acceptarem en graus, tenint en compte que 0.008333 corresponen a 1km a l'equador. Considero com a distància minima a acceptar 0.5m.
+```
+
+    ## [1] "desaggregate species 1"
+    ## [1] "desaggregate species 2"
+    ## [1] "desaggregate species 3"
+    ## [1] "desaggregate species 4"
+    ## [1] "desaggregate species 5"
+    ## [1] "desaggregate species 6"
+    ## [1] "desaggregate species 7"
+    ## [1] "desaggregate species 8"
+    ## [1] "desaggregate species 9"
+    ## [1] "desaggregate species 10"
+    ## $initial
+    ## [1] 1345
+    ## 
+    ## $kept
+    ## [1] 1341
+    ## 
+    ## $out
+    ## [1] 4
+
+Ara recuperem les dades d’aquests registres que hem seleccionat
+desagregant les dades:
+
+``` r
+prov$mat <- as.numeric(prov$x) * as.numeric(prov$y)
+actpnr$mat1 <- as.numeric(actpnr$latitude) * as.numeric(actpnr$longitude)
+actpnrf <- merge(prov,actpnr, by.x="mat", by.y="mat1")
+actpnrf <- subset(actpnrf, select = -c(mat, x, y, by))
+dim(actpnrf) # Revisem nombre de registres
+```
+
+    ## [1] 1342   75
+
+### 8\. Exportem el dataset
+
+Guardem el dataset:
+
+``` r
+# Eliminem les variables de tipus list dins del dataset per a poder guardar-lo:
+actpnrfs = subset(actpnrf, select = -c(tag_list, photos))
+write.csv(actpnrfs,"actpnrfs.csv")
+```
+
+### 9\. Revisió de nombre de registres finals
+
 Revisem els registres finals:
 
 ``` r
-print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpn)[1]))
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpnrfs)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-14 ) del projecte és:  1358"
+    ## [1] "El nombre de registres actual (En data: 2021-12-16 ) del projecte és:  1342"

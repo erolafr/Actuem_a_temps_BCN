@@ -42,8 +42,7 @@ area(barcelones)/1000000
 ```
 
 ### Mapa dels registres
-En primer lloc filtrarem els registres dins l'àrea (teòricament haurien de entrar tots dins l'àrea). Per a fer-ho convertirem el dataframe de iNaturalist amb les dades de registres a un objecte de tipus sf.
-Basat en: https://ucanr-igis.github.io/tech_notes/inaturalist_map.html
+En primer lloc filtrarem els registres dins l'àrea (teòricament haurien de entrar tots dins l'àrea). Per a fer-ho convertirem el dataframe de iNaturalist amb les dades de registres a un objecte de tipus sf. Més informació a https://ucanr-igis.github.io/tech_notes/inaturalist_map.html 
 ```{r}
 inat_obs_sf <-  actpn %>% 
   st_as_sf(coords=c("longitude", "latitude"), crs=4326)
