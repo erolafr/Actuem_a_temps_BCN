@@ -91,7 +91,7 @@ Calculem la densitat total de registres per km2:
 print(paste("El nombre de registres actual al Barcelonès (En data:", Sys.Date(), ") és: ", round(nrow(inat_obs_pcsp_sf)/(area(barcelones_sp)/1000000),3), "registres/km2"))
 ```
 
-    ## [1] "El nombre de registres actual al Barcelonès (En data: 2021-12-16 ) és:  9.147 registres/km2"
+    ## [1] "El nombre de registres actual al Barcelonès (En data: 2021-12-20 ) és:  9.147 registres/km2"
 
 ### Densitat total per espècie
 
@@ -186,7 +186,7 @@ districte. Faig una funció per a comptar registres per area
 ``` r
 num_registres <- function(area, inatdf) {
   inat_obs_pcsp_sf  <- inatdf %>% st_intersection(area)
-  print(nrow(inat_obs_pcsp_sf))
+  return(nrow(inat_obs_pcsp_sf))
 } 
 ```
 
@@ -205,6 +205,8 @@ arees$registres<- as.numeric(c(num_registres(ciutatvella, inat_obs_sf),
 arees$registres[6] <- nrow(inat_obs_sf) - sum(arees$registres, na.rm = TRUE)
 arees$densitat.global <- arees$registres/arees$area
 ```
+
+Mirem el dataset resultant:
 
 ``` r
 arees
@@ -245,14 +247,111 @@ arees[order(arees$densitat.global),]
 ``` r
 #library(RColorBrewer)
 
-rbPal <- colorRampPalette(c('lightgreen','red'))
+rbPal <- colorRampPalette(c('#a5d96a','#d7191c'))
 datcol <- rbPal(10)[as.numeric(cut(arees$densitat.global,breaks = 10))]
 
 plot(districtes, col=datcol, main = "Densitat global d'espècies susceptibles \n a ser invasores")
-legend('topright', legend=c("0.45 registres/km2", "48.9 registres/km2"), col=c("lightgreen","red"), pch=16)
+legend('topright', legend=c("0.45 registres/km2", "48.9 registres/km2"), col=c("#a5d96a","#d7191c"), pch=16)
 ```
 
 ![](2CalculDensitats_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+### Mapa amb color segons densitat per espècie
+
+Cal calcular la densitat a cada districte i creear columnes dins del
+dataframe ‘arees’. Preparo una funció per a poder contar qualsevol
+espècie per als districtes de Barcelona:
+
+``` r
+num_registres_especie <- function(especie) {
+  registres_sp <- as.numeric(c(num_registres(ciutatvella, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(eixample, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(santsmontjuic, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(lescorts, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(sarriasantgervasi, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    NA,
+                    num_registres(hortaguinardo, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(noubarris, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(santandreu, inat_obs_sf[inat_obs_sf$taxon.name==especie,]),
+                    num_registres(santmarti, inat_obs_sf[inat_obs_sf$taxon.name==especie,])))
+
+  registres_sp[6] <- nrow(inat_obs_sf[inat_obs_sf$taxon.name==especie,]) - sum(registres_sp, na.rm = TRUE)
+  
+  return(registres_sp)
+} 
+```
+
+Per exemple, provem amb Lantana camara:
+
+``` r
+num_registres_especie("Lantana camara")
+```
+
+Ara calculem l’àrea:
+
+``` r
+round(num_registres_especie("Lantana camara")/arees$area, 2)
+```
+
+Calculem les densitats per a totes les espècies seleccionades
+
+``` r
+d_aptenia <- num_registres_especie("Mesembryanthemum cordifolium")/arees$area
+d_dichondra <- num_registres_especie("Dichondra micrantha")/arees$area
+d_mirabilis <- num_registres_especie("Mirabilis jalapa")/arees$area
+d_ligustrum <- num_registres_especie("Ligustrum lucidum")/arees$area
+d_kalanchoe <- num_registres_especie("Kalanchoe × houghtonii")/arees$area
+d_lantana <- num_registres_especie("Lantana camara")/arees$area
+d_cenchrus <- num_registres_especie("Cenchrus longisetus")/arees$area
+d_senecio <- num_registres_especie("Senecio angulatus")/arees$area
+d_ipomoea <- num_registres_especie("Ipomoea indica")/arees$area
+```
+
+Així podem entrar aquest valor directament al gràfic
+
+``` r
+rbPal <- colorRampPalette(c('#a5d96a','#d7191c'))
+
+par(mfrow=c(3,3))
+
+datcol <- rbPal(10)[as.numeric(cut(d_aptenia,breaks = 10))]
+plot(districtes, col=datcol, main = "Aptenia cordifolia \n per km2")
+legend('bottomleft', legend=c(round(min(d_aptenia),2), round(max(d_aptenia),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_dichondra,breaks = 10))]
+plot(districtes, col=datcol, main = "Dichondra micrantha \n per km2")
+legend('bottomleft', legend=c(round(min(d_dichondra),2), round(max(d_dichondra),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_mirabilis,breaks = 10))]
+plot(districtes, col=datcol, main = "Mirabilis jalapa \n per km2")
+legend('bottomleft', legend=c(round(min(d_mirabilis),2), round(max(d_mirabilis),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_ligustrum,breaks = 10))]
+plot(districtes, col=datcol, main = "Lantana camara \n per km2")
+legend('bottomleft', legend=c(round(min(d_ligustrum),2), round(max(d_ligustrum),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_kalanchoe,breaks = 10))]
+plot(districtes, col=datcol, main = "Kalanchoe × houghtonii \n per km2")
+legend('bottomleft', legend=c(round(min(d_kalanchoe),2), round(max(d_kalanchoe),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_lantana,breaks = 10))]
+plot(districtes, col=datcol, main = "Lantana camara \n per km2")
+legend('bottomleft', legend=c(round(min(d_lantana),2), round(max(d_lantana),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_cenchrus,breaks = 10))]
+plot(districtes, col=datcol, main = "Cenchrus longisetus \n per km2")
+legend('bottomleft', legend=c(round(min(d_cenchrus),2), round(max(d_cenchrus),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_senecio,breaks = 10))]
+plot(districtes, col=datcol, main = "Senecio angulatus \n per km2")
+legend('bottomleft', legend=c(round(min(d_senecio),2), round(max(d_senecio),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(10)[as.numeric(cut(d_ipomoea,breaks = 10))]
+plot(districtes, col=datcol, main = "Ipomoea indica \n per km2")
+legend('bottomleft', legend=c(round(min(d_ipomoea),2), round(max(d_ipomoea),2)), col=c("#a5d96a","#d7191c"), pch=16)
+```
+
+![](2CalculDensitats_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ### Mapa registres iNaturalist
 

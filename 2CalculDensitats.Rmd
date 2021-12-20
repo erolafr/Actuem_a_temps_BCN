@@ -174,7 +174,6 @@ num_registres_especie <- function(especie) {
   
   return(registres_sp)
 } 
-
 ```
 
 Per exemple, provem amb Lantana camara: 
