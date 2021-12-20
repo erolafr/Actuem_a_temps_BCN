@@ -27,4 +27,10 @@ Justficació i context, presentació de les àrees.
 
 ## Comparació d’àrees d’interès especial
 
-## Mapes de densita global i per espècie d’àrees d’interès especial
+Tests anova i multidimensionals
+
+## Comparació dins i fora àrees d’interès especial
+
+## Impacte esforç de mostreig en AIE en les dades globals
+
+## Mapes de densitat global i per espècie d’àrees d’interès especial
