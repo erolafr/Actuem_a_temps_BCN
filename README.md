@@ -6,7 +6,8 @@ Resultats del projecte **"Actuem a temps: espècies susceptibles de ser invasore
 L'anàlisi es divideix en diferents arxius numerats a executar seqüencialment. Podeu descarregar la versió amb extensió .Rmd o bé visualitzar en linia la versió amb extensió .md:
 1. [Descarrega.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/1Descarrega.md): Descàrrega i revisió de les dades de iNaturalist del projecte.
 2. [CalculDensitats.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/2CalculDensitats.md): Descàrrega d'arxius shp i delimitació d'arees per al càlcul de la densitat de registres
-3. [AddicioDades.md](): Addició de dades d'altres fonts per a completar el dataset.
+3. [AddicioDades.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/3AddicioDades.md): Addició de dades d'altres fonts per a completar el dataset.
+4. [AnalisiAreesInteresEspecial.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/4AnalisiAreesInteresEspecial.md): Anàlisi de resultats d'arees d'interès especial
 
 
 Analista de dades: [Erola Fenollosa](https://erolafenollosa.weebly.com/).
