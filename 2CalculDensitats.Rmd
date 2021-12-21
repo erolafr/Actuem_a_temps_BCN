@@ -20,6 +20,9 @@ library(dplyr)
 library(leaflet)
 library(raster)
 library(tidyverse)
+update.packages("Rcpp")
+
+
 ```
 
 Carreguem el dataset generat per 1Descarrega.Rmd:

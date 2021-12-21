@@ -13,11 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 L'objectiu d'aquest script és incorporar, filtrar i completar el dataset amb noves dades d'altres fonts a part del projecte de iNaturalist per a completar el nombre de registres d'espècies susceptibles a ser invasores a la ciutat de Barcelona.
 
 Carreguem els paquets necesaris:
-```{r}
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
 library(tidyverse)
-
+library(raster)
+library(sf)
 ```
-
 
 
 ## Fonts de dades d'interès
@@ -75,7 +75,7 @@ dim(arbratbcn)
 ## Neteja de les dades
 Únicament ens interessen els registres d'espècies potencialment invasores del projecte. Busquem quines espècies hi ha al dataset:
 ```{r}
-unique(arbratbcn$nom_cientific)
+head(unique(arbratbcn$nom_cientific))
 ```
 
 Per tant tal i com comentava abans, d'aquest dataset ens interesarà unicament els registres de *Ligustrum lucidum* i *Acacia saligna*. Filtrem el dataset:
@@ -130,12 +130,154 @@ Nombre total de registres:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(potinvasoresbcn)[1]))
 ```
 
-Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats):
+Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats (https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/2CalculDensitats.md)). En primer lloc comptabilitzem registres i calculem la densitat global i per a cada espècie:
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+# transformem el dataset per a poder fer analisis espaials
+inat_obs_sf <-  potinvasoresbcn %>% 
+  st_as_sf(coords=c("longitud", "latitud"), crs=4326)
+
+# filtrem els registres de bscb
+barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
+nrow(inat_obs_pcsp_sf)
+
+# calculem la densitat total de registres a barcelona:
+barcelones_sp <- shapefile('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+print(paste("El nombre de registres actual al Barcelonès (En data:", Sys.Date(), ") és: ", round(nrow(inat_obs_pcsp_sf)/(area(barcelones_sp)/1000000),3), "registres/km2"))
+
+# Densitat total de cada espècie:
+dens <- as.data.frame(inat_obs_pcsp_sf %>% count(taxon.name, sort = TRUE))
+dens <- subset(dens, select = -c(geometry))
+dens$densitat.global <- round(dens$n/(area(barcelones_sp)/1000000),3)
+dens
+```
+
+Ara calculem les densitats per districte:
+```{r, results = "hide", warning=FALSE, error=FALSE, message=FALSE}
+# descarreguem altre cop els poligons dels districtes:
+districtes <- shapefile('CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
+ciutatvella<- st_read('Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
+eixample <- st_read('Districtes/eixample/shapefiles_barcelona_distrito.shp')
+santsmontjuic <- st_read('Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
+lescorts <- st_read('Districtes/lescorts/shapefiles_barcelona_distrito.shp')
+sarriasantgervasi <- st_read('Districtes/sarriasantgervasi/shapefiles_barcelona_distrito.shp')
+# gracia <- st_read('Districtes/gracia/shapefiles_barcelona_distrito.shp')
+hortaguinardo <- st_read('Districtes/hortaguinardo/shapefiles_barcelona_distrito.shp')
+noubarris<- st_read('Districtes/Nou_Barris/shapefiles_barcelona_distrito.shp')
+santandreu<- st_read('Districtes/santandreu/shapefiles_barcelona_distrito.shp')
+santmarti<- st_read('Districtes/santmarti/shapefiles_barcelona_distrito.shp')
+
+arees<- data.frame(codi_districte = districtes$DISTRICTE, nom_districte = c("Ciutat Vella", "L'Eixample", "Sants-Montjuic", "Les Corts", "Sarrià - Sant Gervasi", "Gràcia", "Horta-Guinardó", "Nou Barris", "Sant Andreu", "Sant Martí") , area = area(districtes)/1000000)
+
+# afegim la funció per a comptar registres:
+num_registres <- function(area, inatdf) {
+  inat_obs_pcsp_sf  <- inatdf %>% st_intersection(area)
+  return(nrow(inat_obs_pcsp_sf))
+} 
+
+# comptem registres:
+arees$registres<- as.numeric(c(num_registres(ciutatvella, inat_obs_pcsp_sf),
+                    num_registres(eixample, inat_obs_pcsp_sf),
+                    num_registres(santsmontjuic, inat_obs_pcsp_sf),
+                    num_registres(lescorts, inat_obs_pcsp_sf),
+                    num_registres(sarriasantgervasi, inat_obs_pcsp_sf),
+                    NA,
+                    num_registres(hortaguinardo, inat_obs_pcsp_sf),
+                    num_registres(noubarris, inat_obs_pcsp_sf),
+                    num_registres(santandreu, inat_obs_pcsp_sf),
+                    num_registres(santmarti, inat_obs_pcsp_sf)))
+
+arees$registres[6] <- nrow(inat_obs_pcsp_sf) - sum(arees$registres, na.rm = TRUE)
+arees$densitat.global <- arees$registres/arees$area
+```
+
+Mostrem els resultats de densitat global per espècie ordenats:
 ```{r}
-# CAl reentrar els poligons i repetir
+arees[order(arees$densitat.global),]
+```
 
 
+Ara calculem la densitat per districte per a cada espècie, redefinim la funció per a fer-ho:
+```{r,  warning=FALSE, error=FALSE, message=FALSE}
+num_registres_especie <- function(especie) {
+  registres_sp <- as.numeric(c(num_registres(ciutatvella, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(eixample, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(santsmontjuic, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(lescorts, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(sarriasantgervasi, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    NA,
+                    num_registres(hortaguinardo, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(noubarris, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(santandreu, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]),
+                    num_registres(santmarti, inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,])))
+  registres_sp[6] <- nrow(inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]) - sum(registres_sp, na.rm = TRUE)
+  return(registres_sp)
+} 
 
-
+# Calculem les densitats, aquest cop tenim també Acacia saligna
+d_aptenia <- num_registres_especie("Mesembryanthemum cordifolium")/arees$area
+d_dichondra <- num_registres_especie("Dichondra micrantha")/arees$area
+d_mirabilis <- num_registres_especie("Mirabilis jalapa")/arees$area
+d_ligustrum <- num_registres_especie("Ligustrum lucidum")/arees$area
+d_kalanchoe <- num_registres_especie("Kalanchoe × houghtonii")/arees$area
+d_lantana <- num_registres_especie("Lantana camara")/arees$area
+d_cenchrus <- num_registres_especie("Cenchrus longisetus")/arees$area
+d_senecio <- num_registres_especie("Senecio angulatus")/arees$area
+d_ipomoea <- num_registres_especie("Ipomoea indica")/arees$area
+d_acacia <- num_registres_especie("Acacia saligna")/arees$area
 
 ```
+
+Grafiquem-ho:
+```{r}
+rbPal <- colorRampPalette(c('#a5d96a','#d7191c'))
+par(mfrow=c(2,3))
+
+datcol <- rbPal(100)[as.numeric(cut(d_aptenia,breaks = 100))]
+plot(districtes, col=datcol, main = "Aptenia cordifolia \n per km2")
+legend('bottomleft', legend=c(round(min(d_aptenia),2), round(max(d_aptenia),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_dichondra,breaks = 100))]
+plot(districtes, col=datcol, main = "Dichondra micrantha \n per km2")
+legend('bottomleft', legend=c(round(min(d_dichondra),2), round(max(d_dichondra),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_mirabilis,breaks = 100))]
+plot(districtes, col=datcol, main = "Mirabilis jalapa \n per km2")
+legend('bottomleft', legend=c(round(min(d_mirabilis),2), round(max(d_mirabilis),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_ligustrum,breaks = 100))]
+plot(districtes, col=datcol, main = "Ligustrum lucidum \n per km2")
+legend('bottomleft', legend=c(round(min(d_ligustrum),2), round(max(d_ligustrum),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_kalanchoe,breaks = 100))]
+plot(districtes, col=datcol, main = "Kalanchoe × houghtonii \n per km2")
+legend('bottomleft', legend=c(round(min(d_kalanchoe),2), round(max(d_kalanchoe),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_lantana,breaks = 100))]
+plot(districtes, col=datcol, main = "Lantana camara \n per km2")
+legend('bottomleft', legend=c(round(min(d_lantana),2), round(max(d_lantana),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+```
+
+```{r}
+par(mfrow=c(2,2))
+
+datcol <- rbPal(100)[as.numeric(cut(d_cenchrus,breaks = 100))]
+plot(districtes, col=datcol, main = "Cenchrus longisetus \n per km2")
+legend('bottomleft', legend=c(round(min(d_cenchrus),2), round(max(d_cenchrus),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_senecio,breaks = 100))]
+plot(districtes, col=datcol, main = "Senecio angulatus \n per km2")
+legend('bottomleft', legend=c(round(min(d_senecio),2), round(max(d_senecio),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+datcol <- rbPal(100)[as.numeric(cut(d_ipomoea,breaks = 100))]
+plot(districtes, col=datcol, main = "Ipomoea indica \n per km2")
+legend('bottomleft', legend=c(round(min(d_ipomoea),2), round(max(d_ipomoea),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+
+datcol <- rbPal(100)[as.numeric(cut(d_acacia,breaks = 100))]
+plot(districtes, col=datcol, main = "Acacia saligna \n per km2")
+legend('bottomleft', legend=c(round(min(d_acacia),2), round(max(d_acacia),2)), col=c("#a5d96a","#d7191c"), pch=16)
+
+```
+
