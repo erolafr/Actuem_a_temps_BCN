@@ -12,6 +12,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Introducció i descarrega de paquets
 L'objectiu d'aquest script és incorporar, filtrar i completar el dataset amb noves dades d'altres fonts a part del projecte de iNaturalist per a completar el nombre de registres d'espècies susceptibles a ser invasores a la ciutat de Barcelona.
 
+Carreguem els paquets necesaris:
+```{r}
+library(tidyverse)
+
+```
+
+
 
 ## Fonts de dades d'interès
 Gràcies a la demanda creixent de Ciència Oberta, cada cop tenim a disposició més conjunts amb dades obertes. Per exemple, per a la ciutat de Barcelona, el portal *'Open Data Barcelona'*[https://opendata-ajuntament.barcelona.cat/ca/] acull més de 500 conjunts de dades amb informació de la ciutat. Entre elles, d'interés per aquest projecte trobem els següents conjunts de dades:
@@ -20,7 +27,6 @@ Gràcies a la demanda creixent de Ciència Oberta, cada cop tenim a disposició 
   - Arbrat de zona de la ciutat de Barcelona: https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-zona
   - Arbrat viari de la ciutat de Barcelona: 
 https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-viari
-  - Arbres d'interès local de la ciutat de Barcelona: https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbres-interes-local
 
 Amb aquestes dades podrem augmentar el nombre de registres d'espècies arbòries d'entre les espècies susceptibles a ser invasores, és a dir, els registres d'*Acacia saligna* i *Ligustrum lucidum*.
 
@@ -32,15 +38,110 @@ Altres fonts de dades que podrien ser d'interès per a complementar l'anàlisi e
 
 
 ## Obtenció de les dades
-En primer lloc obtenim les dades dels portals esmentats:
+En primer lloc obtenim les dades dels portals esmentats. Ho podriem fer a través de l'API. De moment descarreguem el CSV i el guardem a la carpeta del projecte. 
 ```{r}
+parcs <- read.csv(file = 'OpenDataBCN/OD_Arbrat_Parcs_BCN.csv')
+zona <- read.csv(file = 'OpenDataBCN/OD_Arbrat_Viari_BCN.csv')
+viari <- read.csv(file = 'OpenDataBCN/OD_Arbrat_Zona_BCN.csv')
+```
 
+Revisem de quines variables consta el dataset:
+```{r}
+names(parcs)
+names(zona)
+names(viari)
+```
+Els tres datasets tenen la mateixa estructura, podem unificar-los, indicant de quin dataset venia
+```{r}
+# Afegim primer una variable que identifiqui el dataset d'origen:
+parcs$TIPUS <- "PARCS"
+zona$TIPUS <- "ZONA"
+viari$TIPUS <- "VIARI"
+
+arbratbcn <- rbind(rbind(parcs, zona), viari)
+```
+
+Mirem el dataset resultant:
+```{r}
+head(arbratbcn)
+```
+
+Revisem les dimensions del dataset
+```{r}
+dim(arbratbcn)
 ```
 
 
-
 ## Neteja de les dades
+Únicament ens interessen els registres d'espècies potencialment invasores del projecte. Busquem quines espècies hi ha al dataset:
+```{r}
+unique(arbratbcn$nom_cientific)
+```
 
-## Merge amb el dataset de iNaturalist
+Per tant tal i com comentava abans, d'aquest dataset ens interesarà unicament els registres de *Ligustrum lucidum* i *Acacia saligna*. Filtrem el dataset:
+```{r}
+arbratBCN_pot <- arbratbcn[arbratbcn$nom_cientific == c("Acacia saligna", "Ligustrum lucidum"),]
+dim(arbratBCN_pot)
+```
+
+Ara tenim 3156 registres, d'aquestes dues espècies. Revisem quants registres hi ha de cadascuna:
+```{r}
+arbratBCN_pot %>% count(nom_cientific, sort = TRUE)
+```
+
+És important destacar que hi ha molts més registres de *Ligustrum lucidum* que no pas d'*Acacia saligna*.
+
+
+## Unió amb el dataset de iNaturalist
+Procedim a unir el dataset arbratBCN_pot amb dades de Open Data BCN de localització de les espècies arbòries *L. lucidum* i *A. saligna* amb el dataset amb dades del projecte de iNaturalist que hem obtingut anteriorment.
+
+
+Recarreguem el dataset net de iNaturalist (l'obtingut després de l'script 1Descarega):
+```{r}
+# PENDENTa
+#actpnrfs <- read.csv(file = 'actpnrfs.csv')
+
+
+#inat_obs_sf
+```
+
+Filtrem les variables d'interès d'ambdos datasets abans d'ajuntar-los i els unim, reanomenant les variables:
+```{r}
+# PENDENT
+
+```
+
+Ajuntem els datasets:
+```{r}
+
+# PENDENT#
+#rbind( UN , LALTRE)
+```
+
 
 ## Nou mapa global i recompte de registres totals
+Fem el recompte de registres totals i sobretot de registres per espècie:
+```{r}
+# CAL MODIFICAR
+#arbratBCN_pot %>% count(nom_cientific, sort = TRUE)
+
+#ggplot(actpn,aes(x = fct_infreq(taxon.name))) + 
+#    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
+
+```
+
+Nombre total de registres:
+```{r}
+# CAL MODIFICAR
+#print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(actpnrfs)[1]))
+```
+
+Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats):
+```{r}
+# CAl reentrar els poligons i repetir
+
+
+
+
+
+```
