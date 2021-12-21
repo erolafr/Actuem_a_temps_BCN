@@ -10,24 +10,34 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Introducció i descarrega de paquets
-L'objectiu d'aquest script és incorporar, filtrar completar el dataset amb noves dades d'altres fonts a part del projecte de iNaturalist per a completar el nombre de registres d'espècies susceptibles a ser invasores a la ciutat de Barcelona.
+L'objectiu d'aquest script és incorporar, filtrar i completar el dataset amb noves dades d'altres fonts a part del projecte de iNaturalist per a completar el nombre de registres d'espècies susceptibles a ser invasores a la ciutat de Barcelona.
 
 
 ## Fonts de dades d'interès
-Justificació i aport de cadascuna
+Gràcies a la demanda creixent de Ciència Oberta, cada cop tenim a disposició més conjunts amb dades obertes. Per exemple, per a la ciutat de Barcelona, el portal *'Open Data Barcelona'*[https://opendata-ajuntament.barcelona.cat/ca/] acull més de 500 conjunts de dades amb informació de la ciutat. Entre elles, d'interés per aquest projecte trobem els següents conjunts de dades:
 
-https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-parcs
-https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-zona
+ - Arbrat dels parcs de la ciutat de Barcelona: https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-parcs
+  - Arbrat de zona de la ciutat de Barcelona: https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-zona
+  - Arbrat viari de la ciutat de Barcelona: 
 https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbrat-viari
+  - Arbres d'interès local de la ciutat de Barcelona: https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbres-interes-local
+
+Amb aquestes dades podrem augmentar el nombre de registres d'espècies arbòries d'entre les espècies susceptibles a ser invasores, és a dir, els registres d'*Acacia saligna* i *Ligustrum lucidum*.
 
 
-https://opendata-ajuntament.barcelona.cat/data/ca/dataset/arbres-interes-local
+Altres fonts de dades que podrien ser d'interès per a complementar l'anàlisi en futurs anàlisis són:
+ 
+  - Cobertura vegetal de la ciutat de Barcelona, a partir de l'índex NVDI https://opendata-ajuntament.barcelona.cat/data/ca/dataset/cobertura-vegetal-ndvi 
+  - Parcs i jardins de la ciutat de Barcelona  https://opendata-ajuntament.barcelona.cat/data/ca/dataset/culturailleure-parcsjardins
 
-
-https://opendata-ajuntament.barcelona.cat/data/ca/dataset/cobertura-vegetal-ndvi 
-https://opendata-ajuntament.barcelona.cat/data/ca/dataset/culturailleure-parcsjardins
 
 ## Obtenció de les dades
+En primer lloc obtenim les dades dels portals esmentats:
+```{r}
+
+```
+
+
 
 ## Neteja de les dades
 
