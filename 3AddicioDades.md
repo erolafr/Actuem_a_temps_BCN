@@ -662,44 +662,67 @@ Procedim a unir el dataset arbratBCN\_pot amb dades de Open Data BCN de localitz
 Recarreguem el dataset net de iNaturalist (l'obtingut després de l'script 1Descarega):
 
 ``` r
-# PENDENTa
-#actpnrfs <- read.csv(file = 'actpnrfs.csv')
-
-
-#inat_obs_sf
+actpnrfs <- read.csv(file = 'actpnrfs.csv')
 ```
 
 Filtrem les variables d'interès d'ambdos datasets abans d'ajuntar-los i els unim, reanomenant les variables:
 
 ``` r
-# PENDENT
+extres <- data.frame(latitud= arbratBCN_pot$latitud, longitud = arbratBCN_pot$longitud, taxon.name = arbratBCN_pot$nom_cientific)
+
+actpnrf_net <- data.frame(latitud = actpnrfs$latitude, longitud = actpnrfs$longitude, taxon.name = actpnrfs$taxon.name) 
 ```
 
 Ajuntem els datasets:
 
 ``` r
-# PENDENT#
-#rbind( UN , LALTRE)
+potinvasoresbcn <- rbind(actpnrf_net, extres)
+head(potinvasoresbcn)
 ```
+
+    ##    latitud longitud                   taxon.name
+    ## 1 41.36851 2.094914               Ipomoea indica
+    ## 2 41.42884 2.092528       Kalanchoe × houghtonii
+    ## 3 41.36854 2.095732          Cenchrus longisetus
+    ## 4 41.36699 2.095825               Ipomoea indica
+    ## 5 41.36521 2.096114 Mesembryanthemum cordifolium
+    ## 6 41.41547 2.094604               Ipomoea indica
 
 ## Nou mapa global i recompte de registres totals
 
 Fem el recompte de registres totals i sobretot de registres per espècie:
 
 ``` r
-# CAL MODIFICAR
-#arbratBCN_pot %>% count(nom_cientific, sort = TRUE)
-
-#ggplot(actpn,aes(x = fct_infreq(taxon.name))) + 
-#    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
+potinvasoresbcn %>% count(taxon.name, sort = TRUE)
 ```
+
+    ##                      taxon.name    n
+    ## 1             Ligustrum lucidum 3257
+    ## 2  Mesembryanthemum cordifolium  336
+    ## 3           Dichondra micrantha  266
+    ## 4              Mirabilis jalapa  200
+    ## 5        Kalanchoe × houghtonii   86
+    ## 6                Lantana camara   83
+    ## 7           Cenchrus longisetus   79
+    ## 8             Senecio angulatus   66
+    ## 9                Ipomoea indica   60
+    ## 10               Acacia saligna   33
+    ## 11                      Lantana   32
+
+``` r
+ggplot(potinvasoresbcn,aes(x = fct_infreq(taxon.name))) + 
+    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
+```
+
+![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 Nombre total de registres:
 
 ``` r
-# CAL MODIFICAR
-#print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(actpnrfs)[1]))
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(potinvasoresbcn)[1]))
 ```
+
+    ## [1] "El nombre de registres actual (En data: 2021-12-21 ) del projecte addicionant les dades de OpenDataBCN és:  4498"
 
 Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats):
 

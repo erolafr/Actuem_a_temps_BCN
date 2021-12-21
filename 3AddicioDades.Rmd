@@ -98,42 +98,36 @@ Procedim a unir el dataset arbratBCN_pot amb dades de Open Data BCN de localitza
 
 Recarreguem el dataset net de iNaturalist (l'obtingut després de l'script 1Descarega):
 ```{r}
-# PENDENTa
-#actpnrfs <- read.csv(file = 'actpnrfs.csv')
-
-
-#inat_obs_sf
+actpnrfs <- read.csv(file = 'actpnrfs.csv')
 ```
 
 Filtrem les variables d'interès d'ambdos datasets abans d'ajuntar-los i els unim, reanomenant les variables:
 ```{r}
-# PENDENT
+extres <- data.frame(latitud= arbratBCN_pot$latitud, longitud = arbratBCN_pot$longitud, taxon.name = arbratBCN_pot$nom_cientific)
 
+actpnrf_net <- data.frame(latitud = actpnrfs$latitude, longitud = actpnrfs$longitude, taxon.name = actpnrfs$taxon.name) 
 ```
 
 Ajuntem els datasets:
 ```{r}
-
-# PENDENT#
-#rbind( UN , LALTRE)
+potinvasoresbcn <- rbind(actpnrf_net, extres)
+head(potinvasoresbcn)
 ```
 
 
 ## Nou mapa global i recompte de registres totals
 Fem el recompte de registres totals i sobretot de registres per espècie:
 ```{r}
-# CAL MODIFICAR
-#arbratBCN_pot %>% count(nom_cientific, sort = TRUE)
+potinvasoresbcn %>% count(taxon.name, sort = TRUE)
 
-#ggplot(actpn,aes(x = fct_infreq(taxon.name))) + 
-#    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
+ggplot(potinvasoresbcn,aes(x = fct_infreq(taxon.name))) + 
+    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
 
 ```
 
 Nombre total de registres:
 ```{r}
-# CAL MODIFICAR
-#print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(actpnrfs)[1]))
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(potinvasoresbcn)[1]))
 ```
 
 Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats):
