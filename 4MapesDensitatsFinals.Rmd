@@ -1,0 +1,136 @@
+---
+title: "4MapesDensitatsFinals"
+author: "ErolaFenollosa"
+date: "22 desembre de 2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introducció i descarrega de paquets
+L'objectiu d'aquest script és construir mapes de densitat de registres amb el dataset filtrat i unit que hem generat en els darrers scripts, a través de descarregar les dades del projecte de iNaturalist i unides a les dades de arbrat de Barcelona. 
+
+Carreguem els paquets necesaris:
+```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
+library(tidyverse)
+library(raster)
+library(sf)
+library(hexbin)
+library(RColorBrewer)
+```
+
+Importem les dades generades al final de l'script 3:
+```{r}
+actdf <- read.csv(file = 'xy_act_iNat_OpenData.csv')
+actdf = subset(actdf, select = -c(X))
+head(actdf)
+```
+
+Generarem quatre tipus de mapes de registres i densitats:
+  - 1. Mapa global de registres: Mapa dels registres totals de les 10 espècies susceptibles a ser invasores a la ciutat de Barcelona obtingudes de iNaturalist i de l'arbrat de Barcelona processats
+  - 2. Mapa global de densitat: Mapa de densitat del conjunt de les 10 espècies susceptibles a ser invasores a la ciutat de Barcelona obtingudes de iNaturalist i de l'arbrat de Barcelona processats, estimant la densitat amb KDE.
+  - 3. Mapes per espècie de registres: Mapa de registres com 1 però per a cadascuna de les 10 espècies susceptibles a ser invasores a la ciutat de Barcelona.
+  - 4. Mapes per espècie de densitat: Mapa de densitat com 2 però per a cadascuna de les 10 espècies susceptibles a ser invasores a la ciutat de Barcelona.
+  
+  
+### 1. Mapa global de registres
+En primer lloc preparem el mapa global de registres, importem el poligon del Barcelonés com a referència:
+```{r}
+barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+```
+
+```{r}
+plot(actdf$longitud, actdf$latitud, pch=19, cex = 0.5, xlim = c(2.05, 2.30), ylim=c(41.30, 41.50), xlab="longitud", ylab="latitud", main="Registres totals espècies susceptibles a \n ser invasores al Barcelonès", col="coral")
+plot(barcelones[1], add=TRUE, col = "transparent", border = "grey")
+
+```
+
+
+En aquest mapa global podem veure les diferents espècies:
+```{r}
+cbp2 <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#F0E442", "#0072B2", "#999999" , "#CC79A7","#D55E00", "#293352")
+
+ggplot(actdf, aes(x=longitud, y=latitud, color=taxon.name)) + 
+    geom_point(size=1) + theme_classic() + scale_colour_manual(values=cbp2)
+
+# ggplot(barcelones) + geom_sf() # Per a dibuixar la silueta de BCN
+```
+
+### 2. Mapa global de densitat
+Procedeixo a crear el mapa global però amb estimació de la densitat de registres a través de KDE: Kernel Density estimation.
+
+```{r}
+bin<-hexbin(actdf$longitud, actdf$latitud, xbins=25)
+my_colors=colorRampPalette(rev(brewer.pal(11,'Spectral')))
+plot(bin, main="Densitat global de registres d'espècies \n susceptibles a ser invasores a Barcelona " , colramp=my_colors, xlab = "", ylab= "")
+#plot(barcelones[1], add=TRUE, col = "transparent", border = "grey")
+```
+
+```{r}
+ggplot(actdf, aes(x=longitud, y=latitud) ) +
+  stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
+  scale_fill_distiller(palette= "Spectral", direction=1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(
+    legend.position='none'
+  )
+```
+
+Més informació sobre la funció: https://ggplot2.tidyverse.org/reference/geom_density_2d.html
+```{r}
+ggplot(actdf, aes(x = longitud, y = latitud)) +
+ xlim(2.05, 2.30) +
+ ylim(41.30, 41.50) +
+   geom_point(col="black") +
+  geom_density_2d_filled(alpha = 0.9) +
+  geom_density_2d(size = 0.1, colour = "white", alpha = 0.8) 
+
+# ggplot(barcelones) + geom_sf()
+```
+
+Afegim la silueta de Barcelona:
+```{r}
+ggplot(actdf, aes(x = longitud, y = latitud)) +
+ xlim(2.05, 2.30) +
+ ylim(41.30, 41.50) +
+   geom_point(col="black") +
+  geom_density_2d_filled(alpha = 0.9) +
+  geom_density_2d(size = 0.1, colour = "white", alpha = 0.8) 
+
+# ggplot(barcelones) + geom_sf()
+
+
+#### PENDEEEEEEENT 
+
+
+```
+
+
+
+
+### 3. Mapes de registres per espècie
+Igual que en el punt 1 preparem un mapa per a cada espècie amb els registres sobre Barcelona:
+```{r}
+#Preparo una funció:
+map_reg_per_especie <- function (data, especie) {
+  reg_especie <- data[data$taxon.name==especie,]
+  
+  plot(reg_especie$longitud, reg_especie$latitud, pch=19, cex = 0.5, xlim = c(2.05, 2.30), ylim=c(41.30, 41.50),   xlab="longitud", ylab="latitud", main=paste("Registres", especie ,"al Barcelonès"), col="firebrick1")
+  plot(barcelones[1], col = "transparent", border = "grey", add=TRUE)
+  }
+```
+
+Preparo un bucle per a generar tots els gràfics per a cada espècie:
+```{r}
+for (i in 1:length(levels(as.factor(actdf$taxon.name)))){
+  map_reg_per_especie(actdf, levels(as.factor(actdf$taxon.name))[i])
+}
+```
+
+
+### 4. Mapes de densitat per espècie
