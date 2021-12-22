@@ -18,6 +18,7 @@ library(tidyverse)
 library(raster)
 library(sf)
 library(ecospat)
+library(dplyr)
 ```
 
 

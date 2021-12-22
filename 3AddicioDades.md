@@ -13,6 +13,8 @@ Carreguem els paquets necesaris:
 library(tidyverse)
 library(raster)
 library(sf)
+library(ecospat)
+library(dplyr)
 ```
 
 ## Fonts de dades d'interès
@@ -209,17 +211,67 @@ head(potinvasoresbcn)
     ## 5 41.36521 2.096114 Mesembryanthemum cordifolium
     ## 6 41.41547 2.094604               Ipomoea indica
 
+Abans de prosseguir és important repetir la neteja de registres possiblement duplicats tal i com feiem en l'script 1 (<https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/1Descarrega.md>):
+
+``` r
+xydf <- data.frame(x=potinvasoresbcn$latitud, y=potinvasoresbcn$longitud, by=potinvasoresbcn$taxon.name) # creem un dataframe per a introduir a la funció. 
+xydf_1<-xydf[!duplicated(xydf),] # Es necessari filtrar duplicats
+
+prov <- ecospat.occ.desaggregation(xydf_1, min.dist = 0.008333/1000*0.5, by = 'by') # Introduim la distància que acceptarem en graus, tenint en compte que 0.008333 corresponen a 1km a l'equador. Considero com a distància minima a acceptar 0.5m.
+```
+
+    ## [1] "desaggregate species 1"
+    ## [1] "desaggregate species 2"
+    ## [1] "desaggregate species 3"
+    ## [1] "desaggregate species 4"
+    ## [1] "desaggregate species 5"
+    ## [1] "desaggregate species 6"
+    ## [1] "desaggregate species 7"
+    ## [1] "desaggregate species 8"
+    ## [1] "desaggregate species 9"
+    ## [1] "desaggregate species 10"
+    ## [1] "desaggregate species 11"
+    ## $initial
+    ## [1] 4497
+    ## 
+    ## $kept
+    ## [1] 4497
+    ## 
+    ## $out
+    ## [1] 0
+
+Recuperem els noms de les dades sense duplicats:
+
+``` r
+names(prov) <- names(potinvasoresbcn)
+head(prov)
+```
+
+    ##       latitud longitud     taxon.name
+    ## 1461 41.40136 2.211263 Acacia saligna
+    ## 1462 41.39943 2.208747 Acacia saligna
+    ## 1463 41.40143 2.211312 Acacia saligna
+    ## 1464 41.39942 2.208807 Acacia saligna
+    ## 1465 41.40591 2.216637 Acacia saligna
+    ## 1584 41.41883 2.147123 Acacia saligna
+
+``` r
+dim(prov)[1]
+```
+
+    ## [1] 4497
+
 ## Nou mapa global i recompte de registres totals
 
 Fem el recompte de registres totals i sobretot de registres per espècie:
 
 ``` r
-potinvasoresbcn %>% count(taxon.name, sort = TRUE)
+prov %>% count(taxon.name, sort = TRUE)
 ```
 
     ##                      taxon.name    n
     ## 1             Ligustrum lucidum 3257
-    ## 2  Mesembryanthemum cordifolium  336
+    ## 2  Mesembryanthemum cordifolium  335
     ## 3           Dichondra micrantha  266
     ## 4              Mirabilis jalapa  200
     ## 5        Kalanchoe × houghtonii   86
@@ -231,25 +283,25 @@ potinvasoresbcn %>% count(taxon.name, sort = TRUE)
     ## 11                      Lantana   32
 
 ``` r
-ggplot(potinvasoresbcn,aes(x = fct_infreq(taxon.name))) + 
+ggplot(prov,aes(x = fct_infreq(taxon.name))) + 
     geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
 ```
 
-![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
 Nombre total de registres:
 
 ``` r
-print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(potinvasoresbcn)[1]))
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(prov)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-21 ) del projecte addicionant les dades de OpenDataBCN és:  4498"
+    ## [1] "El nombre de registres actual (En data: 2021-12-22 ) del projecte addicionant les dades de OpenDataBCN és:  4497"
 
 Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats (<https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/2CalculDensitats.md>)). En primer lloc comptabilitzem registres i calculem la densitat global i per a cada espècie:
 
 ``` r
 # transformem el dataset per a poder fer analisis espaials
-inat_obs_sf <-  potinvasoresbcn %>% 
+inat_obs_sf <-  prov %>% 
   st_as_sf(coords=c("longitud", "latitud"), crs=4326)
 
 # filtrem els registres de bscb
@@ -270,7 +322,7 @@ inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
 nrow(inat_obs_pcsp_sf)
 ```
 
-    ## [1] 4495
+    ## [1] 4494
 
 ``` r
 # calculem la densitat total de registres a barcelona:
@@ -278,7 +330,7 @@ barcelones_sp <- shapefile('shapefiles_catalunya_comarcas/shapefiles_catalunya_c
 print(paste("El nombre de registres actual al Barcelonès (En data:", Sys.Date(), ") és: ", round(nrow(inat_obs_pcsp_sf)/(area(barcelones_sp)/1000000),3), "registres/km2"))
 ```
 
-    ## [1] "El nombre de registres actual al Barcelonès (En data: 2021-12-21 ) és:  30.707 registres/km2"
+    ## [1] "El nombre de registres actual al Barcelonès (En data: 2021-12-22 ) és:  30.7 registres/km2"
 
 ``` r
 # Densitat total de cada espècie:
@@ -290,7 +342,7 @@ dens
 
     ##                      taxon.name    n densitat.global
     ## 1             Ligustrum lucidum 3257          22.250
-    ## 2  Mesembryanthemum cordifolium  336           2.295
+    ## 2  Mesembryanthemum cordifolium  335           2.289
     ## 3           Dichondra micrantha  266           1.817
     ## 4              Mirabilis jalapa  200           1.366
     ## 5        Kalanchoe × houghtonii   86           0.587
@@ -354,7 +406,7 @@ arees[order(arees$densitat.global),]
     ## 5              05 Sarrià - Sant Gervasi 19.915566       856        42.98145
     ## 9              09           Sant Andreu  6.592480       302        45.80977
     ## 1              01          Ciutat Vella  4.204931       199        47.32539
-    ## 10             10            Sant Martí 10.436698       559        53.56100
+    ## 10             10            Sant Martí 10.436698       558        53.46519
     ## 8              08            Nou Barris  8.056468       439        54.49038
     ## 4              04             Les Corts  6.010769       402        66.87996
     ## 6              06                Gràcia  4.224278       470       111.26162
@@ -421,7 +473,7 @@ plot(districtes, col=datcol, main = "Lantana camara \n per km2")
 legend('bottomleft', legend=c(round(min(d_lantana),2), round(max(d_lantana),2)), col=c("#a5d96a","#d7191c"), pch=16)
 ```
 
-![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-19-1.png)
+![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 ``` r
 par(mfrow=c(2,2))
@@ -444,7 +496,7 @@ plot(districtes, col=datcol, main = "Acacia saligna \n per km2")
 legend('bottomleft', legend=c(round(min(d_acacia),2), round(max(d_acacia),2)), col=c("#a5d96a","#d7191c"), pch=16)
 ```
 
-![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
 Guardem el dataset final:
 
