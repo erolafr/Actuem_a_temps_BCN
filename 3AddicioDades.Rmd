@@ -17,6 +17,7 @@ Carreguem els paquets necesaris:
 library(tidyverse)
 library(raster)
 library(sf)
+library(ecospat)
 ```
 
 
@@ -114,26 +115,40 @@ potinvasoresbcn <- rbind(actpnrf_net, extres)
 head(potinvasoresbcn)
 ```
 
+Abans de prosseguir és important repetir la neteja de registres possiblement duplicats tal i com feiem en l'script 1 (https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/1Descarrega.md):
+```{r}
+xydf <- data.frame(x=potinvasoresbcn$latitud, y=potinvasoresbcn$longitud, by=potinvasoresbcn$taxon.name) # creem un dataframe per a introduir a la funció. 
+xydf_1<-xydf[!duplicated(xydf),] # Es necessari filtrar duplicats
+
+prov <- ecospat.occ.desaggregation(xydf_1, min.dist = 0.008333/1000*0.5, by = 'by') # Introduim la distància que acceptarem en graus, tenint en compte que 0.008333 corresponen a 1km a l'equador. Considero com a distància minima a acceptar 0.5m.
+```
+Recuperem els noms de les dades sense duplicats:
+```{r}
+names(prov) <- names(potinvasoresbcn)
+head(prov)
+dim(prov)[1]
+```
+
 
 ## Nou mapa global i recompte de registres totals
 Fem el recompte de registres totals i sobretot de registres per espècie:
 ```{r}
-potinvasoresbcn %>% count(taxon.name, sort = TRUE)
+prov %>% count(taxon.name, sort = TRUE)
 
-ggplot(potinvasoresbcn,aes(x = fct_infreq(taxon.name))) + 
+ggplot(prov,aes(x = fct_infreq(taxon.name))) + 
     geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
 
 ```
 
 Nombre total de registres:
 ```{r}
-print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(potinvasoresbcn)[1]))
+print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte addicionant les dades de OpenDataBCN és: ", dim(prov)[1]))
 ```
 
 Grafiquem els registres repetint l'anàlisi per districtes tal i com hem fet en el script 2 (CalculDensitats (https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/2CalculDensitats.md)). En primer lloc comptabilitzem registres i calculem la densitat global i per a cada espècie:
 ```{r, warning=FALSE, error=FALSE, message=FALSE}
 # transformem el dataset per a poder fer analisis espaials
-inat_obs_sf <-  potinvasoresbcn %>% 
+inat_obs_sf <-  prov %>% 
   st_as_sf(coords=c("longitud", "latitud"), crs=4326)
 
 # filtrem els registres de bscb

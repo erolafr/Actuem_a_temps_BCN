@@ -445,3 +445,9 @@ legend('bottomleft', legend=c(round(min(d_acacia),2), round(max(d_acacia),2)), c
 ```
 
 ![](3AddicioDades_files/figure-markdown_github/unnamed-chunk-20-1.png)
+
+Guardem el dataset final:
+
+``` r
+write.csv(inat_obs_pcsp_sf,"act_iNat_OpenData.csv")
+```
