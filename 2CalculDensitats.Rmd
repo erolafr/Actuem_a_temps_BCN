@@ -25,7 +25,7 @@ update.packages("Rcpp")
 
 Carreguem el dataset generat per 1Descarrega.Rmd:
 ```{r}
-actpnrfs <- read.csv(file = 'actpnrfs.csv')
+actpnrfs <- read.csv(file = 'Datasets/actpnrfs.csv')
 ```
 
 ## Delimitació de l'àrea global del projecte
@@ -34,7 +34,7 @@ En primer lloc necesitem quantificar l'àrea del projecte. Es va definir el proj
 Podem descarregar un csv amb els limits del Barcelonés a partir de https://vangdata.carto.com/tables/shapefiles_catalunya_comarcas/public/map. Descarreguem els arxius del Barcelonés i els posem a la carpeta. 
 
 ```{r}
-barcelones_sp <- shapefile('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+barcelones_sp <- shapefile('Cartografia/shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 plot(barcelones_sp)
 ```
 
@@ -55,7 +55,7 @@ dim(inat_obs_sf)
 
 Fem el filtratge de l'àrea, per a fer-ho necesitem transformar el shp de l'àrea en un sf, el tornem a carregar amb la funció st_read:
 ```{r, results='hide', warning=FALSE, error=FALSE, message=FALSE}
-barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+barcelones <- st_read('Cartografia/shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
 nrow(inat_obs_pcsp_sf)
 ```
@@ -85,7 +85,7 @@ Per a evaluar si hi ha diferències en les diferents zones de Barcelona, per exe
 
 Descarreguem l'arxiu shp de: http://w20.bcn.cat/cartobcn/default.aspx amb els districtes de barcelona i grafiquem:
 ```{r, warning=FALSE, error=FALSE, message=FALSE}
-districtes <- shapefile('CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
+districtes <- shapefile('Cartografia/CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
 plot(districtes)
 ```
 
@@ -97,16 +97,16 @@ arees
 
 Per a tenir shp de cada districte els descarreguem de:  https://vangdata.carto.com/tables/shapefiles_barcelona_distrito/public
 ```{r echo=T, results='hide', warning=FALSE, error=FALSE, message=FALSE}
-ciutatvella<- st_read('Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
-eixample <- st_read('Districtes/eixample/shapefiles_barcelona_distrito.shp')
-santsmontjuic <- st_read('Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
-lescorts <- st_read('Districtes/lescorts/shapefiles_barcelona_distrito.shp')
-sarriasantgervasi <- st_read('Districtes/sarriasantgervasi/shapefiles_barcelona_distrito.shp')
-# gracia <- st_read('Districtes/gracia/shapefiles_barcelona_distrito.shp')
-hortaguinardo <- st_read('Districtes/hortaguinardo/shapefiles_barcelona_distrito.shp')
-noubarris<- st_read('Districtes/Nou_Barris/shapefiles_barcelona_distrito.shp')
-santandreu<- st_read('Districtes/santandreu/shapefiles_barcelona_distrito.shp')
-santmarti<- st_read('Districtes/santmarti/shapefiles_barcelona_distrito.shp')
+ciutatvella<- st_read('Cartografia/Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
+eixample <- st_read('Cartografia/Districtes/eixample/shapefiles_barcelona_distrito.shp')
+santsmontjuic <- st_read('Cartografia/Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
+lescorts <- st_read('Cartografia/Districtes/lescorts/shapefiles_barcelona_distrito.shp')
+sarriasantgervasi <- st_read('Cartografia/Districtes/sarriasantgervasi/shapefiles_barcelona_distrito.shp')
+# gracia <- st_read('Cartografia/Districtes/gracia/shapefiles_barcelona_distrito.shp')
+hortaguinardo <- st_read('Cartografia/Districtes/hortaguinardo/shapefiles_barcelona_distrito.shp')
+noubarris<- st_read('Cartografia/Districtes/Nou_Barris/shapefiles_barcelona_distrito.shp')
+santandreu<- st_read('Cartografia/Districtes/santandreu/shapefiles_barcelona_distrito.shp')
+santmarti<- st_read('Cartografia/Districtes/santmarti/shapefiles_barcelona_distrito.shp')
 ```
 
 Afegim la densitat total d'espècies, cal filtrar els registres en cada districte. Faig una funció per a comptar registres per area

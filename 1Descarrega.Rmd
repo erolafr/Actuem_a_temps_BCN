@@ -176,7 +176,7 @@ Guardem el dataset:
 ```{r}
 # Eliminem les variables de tipus list dins del dataset per a poder guardar-lo:
 actpnrfs = subset(actpnrf, select = -c(tag_list, photos))
-write.csv(actpnrfs,"actpnrfs.csv")
+write.csv(actpnrfs,"Datasets/actpnrfs.csv")
 ```
 
 ### 9. Revisió de nombre de registres finals

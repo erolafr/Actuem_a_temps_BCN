@@ -42,9 +42,9 @@ Altres fonts de dades que podrien ser d'interès per a complementar l'anàlisi e
 ## Obtenció de les dades
 En primer lloc obtenim les dades dels portals esmentats. Ho podriem fer a través de l'API. De moment descarreguem el CSV i el guardem a la carpeta del projecte. 
 ```{r}
-parcs <- read.csv(file = 'OpenDataBCN/OD_Arbrat_Parcs_BCN.csv')
-zona <- read.csv(file = 'OpenDataBCN/OD_Arbrat_Viari_BCN.csv')
-viari <- read.csv(file = 'OpenDataBCN/OD_Arbrat_Zona_BCN.csv')
+parcs <- read.csv(file = 'Cartografia/OpenDataBCN/OD_Arbrat_Parcs_BCN.csv')
+zona <- read.csv(file = 'Cartografia/OpenDataBCN/OD_Arbrat_Viari_BCN.csv')
+viari <- read.csv(file = 'Cartografia/OpenDataBCN/OD_Arbrat_Zona_BCN.csv')
 ```
 
 Revisem de quines variables consta el dataset:
@@ -100,7 +100,7 @@ Procedim a unir el dataset arbratBCN_pot amb dades de Open Data BCN de localitza
 
 Recarreguem el dataset net de iNaturalist (l'obtingut després de l'script 1Descarega):
 ```{r}
-actpnrfs <- read.csv(file = 'actpnrfs.csv')
+actpnrfs <- read.csv(file = 'Datasets/actpnrfs.csv')
 ```
 
 Filtrem les variables d'interès d'ambdos datasets abans d'ajuntar-los i els unim, reanomenant les variables:
@@ -153,12 +153,12 @@ inat_obs_sf <-  prov %>%
   st_as_sf(coords=c("longitud", "latitud"), crs=4326)
 
 # filtrem els registres de bscb
-barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+barcelones <- st_read('Cartografia/shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 inat_obs_pcsp_sf  <- inat_obs_sf %>% st_intersection(barcelones)
 nrow(inat_obs_pcsp_sf)
 
 # calculem la densitat total de registres a barcelona:
-barcelones_sp <- shapefile('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+barcelones_sp <- shapefile('Cartografia/shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 print(paste("El nombre de registres actual al Barcelonès (En data:", Sys.Date(), ") és: ", round(nrow(inat_obs_pcsp_sf)/(area(barcelones_sp)/1000000),3), "registres/km2"))
 
 # Densitat total de cada espècie:
@@ -171,17 +171,17 @@ dens
 Ara calculem les densitats per districte:
 ```{r, results = "hide", warning=FALSE, error=FALSE, message=FALSE}
 # descarreguem altre cop els poligons dels districtes:
-districtes <- shapefile('CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
-ciutatvella<- st_read('Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
-eixample <- st_read('Districtes/eixample/shapefiles_barcelona_distrito.shp')
-santsmontjuic <- st_read('Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
-lescorts <- st_read('Districtes/lescorts/shapefiles_barcelona_distrito.shp')
-sarriasantgervasi <- st_read('Districtes/sarriasantgervasi/shapefiles_barcelona_distrito.shp')
+districtes <- shapefile('Cartografia/CartoBCN-2021-dic-16-163718/Unitats Administratives/SHP/BCN_UNITATS_ADM/0301040100_Districtes_UNITATS_ADM.shp')
+ciutatvella<- st_read('Cartografia/Districtes/ciutatvella/shapefiles_barcelona_distrito.shp')
+eixample <- st_read('Cartografia/Districtes/eixample/shapefiles_barcelona_distrito.shp')
+santsmontjuic <- st_read('Cartografia/Districtes/SantsMontjuic/shapefiles_barcelona_distrito.shp')
+lescorts <- st_read('Cartografia/Districtes/lescorts/shapefiles_barcelona_distrito.shp')
+sarriasantgervasi <- st_read('Cartografia/Districtes/sarriasantgervasi/shapefiles_barcelona_distrito.shp')
 # gracia <- st_read('Districtes/gracia/shapefiles_barcelona_distrito.shp')
-hortaguinardo <- st_read('Districtes/hortaguinardo/shapefiles_barcelona_distrito.shp')
-noubarris<- st_read('Districtes/Nou_Barris/shapefiles_barcelona_distrito.shp')
-santandreu<- st_read('Districtes/santandreu/shapefiles_barcelona_distrito.shp')
-santmarti<- st_read('Districtes/santmarti/shapefiles_barcelona_distrito.shp')
+hortaguinardo <- st_read('Cartografia/Districtes/hortaguinardo/shapefiles_barcelona_distrito.shp')
+noubarris<- st_read('Cartografia/Districtes/Nou_Barris/shapefiles_barcelona_distrito.shp')
+santandreu<- st_read('Cartografia/Districtes/santandreu/shapefiles_barcelona_distrito.shp')
+santmarti<- st_read('Cartografia/Districtes/santmarti/shapefiles_barcelona_distrito.shp')
 
 arees<- data.frame(codi_districte = districtes$DISTRICTE, nom_districte = c("Ciutat Vella", "L'Eixample", "Sants-Montjuic", "Les Corts", "Sarrià - Sant Gervasi", "Gràcia", "Horta-Guinardó", "Nou Barris", "Sant Andreu", "Sant Martí") , area = area(districtes)/1000000)
 
@@ -299,7 +299,7 @@ legend('bottomleft', legend=c(round(min(d_acacia),2), round(max(d_acacia),2)), c
 
 Guardem el dataset final:
 ```{r}
-write.csv(inat_obs_pcsp_sf,"act_iNat_OpenData.csv")
-write.csv(prov,"xy_act_iNat_OpenData.csv")
+write.csv(inat_obs_pcsp_sf,"Datasets/act_iNat_OpenData.csv")
+write.csv(prov,"Datasets/xy_act_iNat_OpenData.csv")
 ```
 

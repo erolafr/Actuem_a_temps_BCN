@@ -1,0 +1,163 @@
+---
+title: "Mapa_10potencialmentInvasores"
+author: "Erola Fenollosa"
+date: "9/9/2021"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Mapa de Barcelona amb la presència de 10 espècies potencialment invasores
+Introducció
+
+En primer lloc carreguem paquets
+```{r}
+library(leaflet)
+#install.packages("dplyr")
+library(dplyr)
+
+#install.packages("readxl")
+library("readxl")
+
+library(sf)
+library(sp)
+```
+
+### Per a posar un punt amb les cordenades
+```{r}
+m <- leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=2.16992, lat=41.3879, popup="Barcelona")
+m  # Print the map
+```
+
+### Per a posar diversos punts importats d'un df:
+```{r}
+setwd("~/Subvenció Ajuntament 2021/MapShiny")
+puntsBcn <- read_excel("datatest.xlsx")
+puntsBcn$lat <- as.numeric(puntsBcn$lat)
+puntsBcn$long <- as.numeric(puntsBcn$long)
+
+leaflet(data = puntsBcn) %>% addTiles() %>%
+  addMarkers(~lat, ~long, popup = ~as.character(Species), label = ~as.character(Species))
+
+
+```
+
+
+### Customitzem les icones:
+```{r}
+iconesCodi <- iconList(Lantana = makeIcon("groc.png", iconWidth = 24, iconHeight =32),
+                       Aptenia = makeIcon("rosa.png", iconWidth = 24, iconHeight =32))
+
+leaflet(data = puntsBcn) %>% addTiles() %>%
+  addMarkers(~lat, ~long, popup = ~as.character(Species), label = ~as.character(Species), icon = ~iconesCodi[Species])
+
+```
+
+### Llegenda per a seleccionar només una espècie
+Primer començem per insertar una llegenda a partir de addControl. Creem una llegenda a partir dels colors. Hi ha altres opcions però aquesta és la més senzilla. Selecciono colors similars. Es podrien posar els noms en cursiva amb <i> però llavors aplica un salt de linia.
+```{r}
+html_legend <- "<img src='https://i1.sndcdn.com/artworks-000239913029-lwywjf-t500x500.jpg'style='width:15px;height:15px;'> Aptenia cordifolia<br/><img src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Orange_colour_box.svg/1200px-Orange_colour_box.svg.png'style='width:15px;height:15px;'> Lantana camara"
+
+leaflet(data = puntsBcn) %>% addTiles() %>%
+  addMarkers(~lat, ~long, popup = ~as.character(Species), label = ~as.character(Species), icon = ~iconesCodi[Species])%>%
+  addControl(html = html_legend, position = "bottomleft")
+
+```
+Ara podriem provar a que es poguessin seleccionar únicament una espècie, amb grups/capes:
+https://rstudio.github.io/leaflet/showhide.html
+
+```{r}
+# PENDENT
+```
+
+
+### Afegim poligons de parcs i jardins de Barcelona
+en primer lloc afegim un poligon en concret per visualitzar com queda:
+```{r}
+
+x_coord <- c(2.098570,  2.327817,  2.134104, 1.995028) # Invento unes coordenades al voltant de Barcelona
+y_coord <- c(41.483569, 41.495487, 41.274691, 41.33843)
+xym <- cbind(x_coord, y_coord)
+
+p = Polygon(xym)
+ps = Polygons(list(p),1)
+sps = SpatialPolygons(list(ps))
+
+leaflet(data = puntsBcn) %>% addTiles() %>%
+  addMarkers(~lat, ~long, popup = ~as.character(Species), label = ~as.character(Species), icon = ~iconesCodi[Species])%>%
+  addControl(html = html_legend, position = "bottomleft") %>%
+  addPolygons(
+    data = sps,
+    # set the color of the polygon
+    color = "#E84A5F",
+    # set the opacity of the outline
+    opacity = 1,
+    # set the stroke width in pixels
+    weight = 1,
+    # set the fill opacity
+    fillOpacity = 0.3
+  )
+
+```
+Provem d'importar un .shp d'exemple:
+```{r}
+andorra <- st_read(
+  "andorra-latest-free.shp/gis_osm_buildings_a_free_1.shp")
+# origen: http://download.geofabrik.de/europe.html
+
+leaflet(data = puntsBcn) %>% addTiles() %>%
+  addMarkers(~lat, ~long, popup = ~as.character(Species), label = ~as.character(Species), icon = ~iconesCodi[Species])%>%
+  addControl(html = html_legend, position = "bottomleft") %>%
+  addPolygons(
+    data = andorra,
+    # set the color of the polygon
+    color = "#E84A5F",
+    # set the opacity of the outline
+    opacity = 1,
+    # set the stroke width in pixels
+    weight = 1,
+    # set the fill opacity
+    fillOpacity = 0.3
+  )
+```
+
+### Incorporem capa de parcs de l'AMB
+```{r}
+# NOTA: Cal importar l'arxiu des de la carpeta original
+parcsAMB <- st_read(
+  "~/Subvenció Ajuntament 2021/MapShiny/FME_2233073D_1631183571146_599908/ESRISHAPE_1/ide/PARCS.AUX_SM.shp")
+# origen: https://www.barcelona.cat/ca/que-pots-fer-a-bcn/parcs-i-jardins/tots-els-parcs
+
+# Convertim a objecte sp
+parcsAMB1 <- as(parcsAMB, Class = "Spatial")
+
+#Transformem la projecció
+spdf_lon_lat <- spTransform(parcsAMB1, CRS("+init=epsg:4326"))
+
+# Refem la llegenda:
+html_legend <- "<img src='https://i1.sndcdn.com/artworks-000239913029-lwywjf-t500x500.jpg'style='width:15px;height:15px;'> Aptenia cordifolia<br/><img src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Orange_colour_box.svg/1200px-Orange_colour_box.svg.png'style='width:15px;height:15px;'> Lantana camara<br/><img src='https://htmlcolorcodes.com/assets/images/colors/gray-color-solid-background-1920x1080.png'style='width:15px;height:15px;'> Parcs de l'AMB"
+
+leaflet(data = puntsBcn) %>% addTiles() %>%
+  addMarkers(~lat, ~long, popup = ~as.character(Species), label = ~as.character(Species), icon = ~iconesCodi[Species])%>%
+  addControl(html = html_legend, position = "bottomleft") %>%
+  addPolygons(
+    data = spdf_lon_lat,
+    # set the color of the polygon
+    color = "#808080",
+    # set the opacity of the outline
+    opacity = 1,
+    # set the stroke width in pixels
+    weight = 1,
+    # set the fill opacity
+    fillOpacity = 0.3
+  )
+
+```
+
+
+
+

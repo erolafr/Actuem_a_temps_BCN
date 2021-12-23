@@ -24,7 +24,7 @@ library(RColorBrewer)
 
 Importem les dades generades al final de l'script 3:
 ```{r}
-actdf <- read.csv(file = 'xy_act_iNat_OpenData.csv')
+actdf <- read.csv(file = 'Datasets/xy_act_iNat_OpenData.csv')
 actdf = subset(actdf, select = -c(X))
 head(actdf)
 ```
@@ -39,7 +39,7 @@ Generarem quatre tipus de mapes de registres i densitats:
 ### 1. Mapa global de registres
 En primer lloc preparem el mapa global de registres, importem el poligon del Barcelonés com a referència:
 ```{r}
-barcelones <- st_read('shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+barcelones <- st_read('Cartografia/shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
 ```
 Grafiquem els registres amb la capa de Barcelona:
 ```{r}
