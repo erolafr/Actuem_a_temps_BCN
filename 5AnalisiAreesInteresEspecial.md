@@ -9,17 +9,198 @@ L'objectiu d'aquest script és l'anàlisi d'arees d'interès especial sobre els 
 
 Carreguem els paquets necesaris:
 
+``` r
+library(sf)
+library(dplyr)
+library(tidyverse)
+```
+
+Carreguem les dades obtingudes en els anteriors scripts:
+
+``` r
+actdf <- read.csv(file = 'Datasets/xy_act_iNat_OpenData.csv')
+actdf = subset(actdf, select = -c(X))
+head(actdf)
+```
+
+    ##    latitud longitud     taxon.name
+    ## 1 41.40136 2.211263 Acacia saligna
+    ## 2 41.39943 2.208747 Acacia saligna
+    ## 3 41.40143 2.211312 Acacia saligna
+    ## 4 41.39942 2.208807 Acacia saligna
+    ## 5 41.40591 2.216637 Acacia saligna
+    ## 6 41.41883 2.147123 Acacia saligna
+
 ## Disseny experimental
 
 Les àrees mostrejades han estat delimitades en el següent mapa: <https://www.google.com/maps/d/u/0/edit?mid=1zKP73GWKfj9CqJmftumOEowJaoyUvBG4&usp=sharing>
 
-Justficació i context, presentació de les àrees.
+L'objectiu de la dessignació d'aquestes àrees ha estat múltiple. En primer lloc, considerant que l'abast del projecte no permetia cobrir tota l'àrea de la ciutat de Barcelona fent un registre intensiu de presències i absències de les 10 espècies selecciondes, els resultats obtinguts estaràn sempre esviaixats per l'esforç de mostreig no homogeni sobre la ciutat. Malgrat això, el present projecte prepara i posa en marxa un marc de recollida de dades i d'anàlisi de manera que gràcies a la contribució ciutadana sigui possible cada cop captar més la presència de les espècies per la ciutat. Per aquest motiu ens vam plantejar seleccionar àrees concretes de la ciutat on centrar els esforços i registrar no només presències sinò també absències de les 10 espècies de manera que sobre aquestes àrees el registre sigui total i poguem comparar-les amb la resta d'espais de la ciutat. En segon lloc, aquestes àrees d'interès especial (AIEs) van ser escollides captant l'heterogeneïtat de la ciutat i per a entendre el rol de certs espais d'ús divers pel ciutadà per a evaluar la presència i densitat de les espècies suceptibles a ser invasores en els diferents espais.
+
+Els diferents tipus de zones escollides són:
+
+-   **Carrers conectors dels eixos de Barcelona**: Diagonal(CD), Gran via de les Corts Catalanes (CG) i Passeig de Sant Joan (CP)
+
+-   **Superilles**: Superilla del Poblenou (SP) (<https://ajuntament.barcelona.cat/superilles/ca/content/poblenou>) i Superilla de Sant Antoni (SA) (<https://ajuntament.barcelona.cat/superilles/ca/content/sant-antoni>)
+
+-   **Cementiris**: Cementiri de Poblenou (MP), Montjuic (MM), Sant Andreu (MA), Horta (MH) i Sants (MS)
 
 ## Descàrrega de polígons i importació a R
 
+Començo amb l'anàlisi d'una sola àrea, el Cementiri de Montjuic. Del mapa generat amb l'àrea exacta de les zones, descarreguem en KMZ (i transformem en KML per exemple amb <https://mygeodata.cloud/converter/kmz-to-kml>) l'àrea del cementiri de Montjuic, el guardo a la carpeta Cartogragia/AIEs i l'importem a R:
+
+``` r
+MM <- st_read("Cartografia/AIEs/CementiriMontjuic.kml")
+```
+
+    ## Reading layer `CementiriMontjuic' from data source 
+    ##   `C:\Users\Erola\Documents\Actuem_a_temps_BCN\Cartografia\AIEs\CementiriMontjuic.kml' 
+    ##   using driver `KML'
+    ## Simple feature collection with 1 feature and 2 fields
+    ## Geometry type: POLYGON
+    ## Dimension:     XY
+    ## Bounding box:  xmin: 2.149558 ymin: 41.35444 xmax: 2.1586 ymax: 41.35926
+    ## Geodetic CRS:  WGS 84
+
+``` r
+plot(MM[1], main="Cementiri de Montjuic (MM)")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-3-1.png) Calculem-ne l'àrea, dividim per a tenir-ho en km2
+
+``` r
+st_area(MM)/1000000
+```
+
+    ## 0.2007999 [m^2]
+
 ## Filtratge de registres per àrea
 
+Ara filtrem els registres dins l'àrea del cementiri de Montjuic:
+
+``` r
+actdf_sf <-  actdf %>% 
+  st_as_sf(coords=c("longitud", "latitud"), crs=4326)
+print(paste("Nº registres totals:", dim(actdf_sf)[1]))
+```
+
+    ## [1] "Nº registres totals: 4497"
+
+``` r
+actdf_sf_MM  <- actdf_sf %>% st_intersection(MM)
+print(paste("Nº registres en l'àrea:", nrow(actdf_sf_MM)))
+```
+
+    ## [1] "Nº registres en l'àrea: 178"
+
+``` r
+print(paste("Percentatge registres en l'àrea:", round(nrow(actdf_sf_MM)*100/ dim(actdf_sf)[1],2), "%"))
+```
+
+    ## [1] "Percentatge registres en l'àrea: 3.96 %"
+
 ## Càlcul de densitat dins de les àrees d'interès especial
+
+Ara procedim a calcular la densitat dins les AIE, en registres totals/km2:
+
+``` r
+nrow(actdf_sf_MM)/(st_area(MM)/1000000)
+```
+
+    ## 886.4548 [1/m^2]
+
+I per a cada espècie:
+
+``` r
+# Recordem la funció creada al script 2:
+num_registres <- function(area, inatdf) {
+  inat_obs_pcsp_sf  <- inatdf %>% st_intersection(area)
+  return(nrow(inat_obs_pcsp_sf))
+} 
+
+num_registres(MM, actdf_sf[actdf_sf$taxon.name=="Mesembryanthemum cordifolium",])
+```
+
+    ## [1] 152
+
+Preparo una funció per a donats un dataset, un nom d'espècie i una àrea d'interès, retorni el nombre de registres i una altra que retorni la densitat de registres en funció de l'àrea de l'AIE:
+
+``` r
+num_registres_especie_AIE <- function(dataset, especie, AIE) {
+  inat_obs_pcsp_sf  <- dataset %>% st_intersection(AIE)
+  dataset_sp <- inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]
+  return(nrow(dataset_sp))
+} 
+
+densitat_especie_AIE <- function(dataset, especie, AIE) {
+  inat_obs_pcsp_sf  <- dataset %>% st_intersection(AIE)
+  dataset_sp <- inat_obs_pcsp_sf[inat_obs_pcsp_sf$taxon.name==especie,]
+  return(nrow(dataset_sp)/(st_area(AIE)/1000000))
+} 
+```
+
+Ho provem amb l'espècie més abundant:
+
+``` r
+num_registres_especie_AIE(actdf_sf, "Mesembryanthemum cordifolium", MM)
+```
+
+    ## [1] 152
+
+``` r
+densitat_especie_AIE(actdf_sf, "Mesembryanthemum cordifolium", MM)
+```
+
+    ## 756.9726 [1/m^2]
+
+Preparo també una funció per a fer diferents gràfics per a visualitzar el nombre de registres, la densitat i la proporció en un AIE:
+
+``` r
+graficsAIE <- function(dataset, AIE){
+ datasetAIE  <- dataset %>% st_intersection(AIE)
+  
+    # 1. Nº registres
+  freqpl <- ggplot(datasetAIE,aes(x = fct_infreq(taxon.name))) + 
+    geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres") + labs(title = (paste("Nombre de registres de registres a" , deparse(substitute(AIE)))))
+  print(freqpl)
+  
+  # 2.  densitat de registres
+  sp <- c()
+  densitat <- c()
+  for (i in 1:length(levels(as.factor(datasetAIE$taxon.name)))){
+    sp[i] <- levels(as.factor(datasetAIE$taxon.name))[i]
+    densitat[i] <- densitat_especie_AIE(datasetAIE, levels(as.factor(datasetAIE$taxon.name))[i], AIE)
+  }
+  
+  dataespeciedensitat <- data.frame(especie = sp, densitat = densitat)
+  print(dataespeciedensitat)
+ densiplot<- ggplot(dataespeciedensitat, aes(x=reorder(especie, -densitat), y= densitat)) + geom_bar(stat="identity", color="coral", fill="white") + coord_flip() + ylab("Registres/km2") + xlab("Espècie") + labs(title = (paste("Densitat de registres a" , deparse(substitute(AIE)))))
+ print(densiplot) 
+ 
+  # 3. proporcio de cada especie
+  propplot <- ggplot(dataespeciedensitat, aes(x="", y=densitat, fill=especie)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0) + scale_fill_brewer(palette="Set1") + labs(title = (paste("Proporció de cada espècie a" , deparse(substitute(AIE))))) + xlab("") + ylab("")
+  print(propplot)
+}
+```
+
+La provem en l'AIE del cementiri de Montjuic:
+
+``` r
+graficsAIE(actdf_sf, MM)
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+    ##                        especie   densitat
+    ## 1          Cenchrus longisetus   9.960166
+    ## 2       Kalanchoe × houghtonii  64.741078
+    ## 3            Ligustrum lucidum  39.840663
+    ## 4 Mesembryanthemum cordifolium 756.972600
+    ## 5            Senecio angulatus  14.940249
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-11-2.png)![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-11-3.png)
 
 ## Comparació d'àrees d'interès especial
 

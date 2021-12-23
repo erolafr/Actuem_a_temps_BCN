@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="CementiriMontjuic" id="CementiriMontjuic">
+	<SimpleField name="descripci__" type="string"></SimpleField>
+	<SimpleField name="nombre" type="string"></SimpleField>
+</Schema>
+<Folder><name>CementiriMontjuic</name>
+  <Placemark>
+	<name></name>
+	<description>descripció: &lt;br&gt;nombre: Cem_Mon</description>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#CementiriMontjuic">
+		<SimpleData name="descripci__"></SimpleData>
+		<SimpleData name="nombre">Cem_Mon</SimpleData>
+	</SchemaData></ExtendedData>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>2.1547963,41.3588575 2.1545146,41.3586462 2.1535168,41.3579134 2.1523688,41.3572369 2.1515534,41.3567779 2.1509526,41.3566249 2.1502552,41.3565041 2.1501158,41.3563349 2.1501587,41.3557632 2.1499656,41.3556826 2.1495579,41.3555699 2.149633,41.3554088 2.1499763,41.3551994 2.1518538,41.3544424 2.1520362,41.3544666 2.1530877,41.3548531 2.1539674,41.3551934 2.1549518,41.355588 2.1573283,41.3564134 2.1585996,41.3568805 2.1583904,41.3571181 2.1577628,41.35771 2.1579505,41.3577342 2.1584494,41.3577986 2.1584333,41.3580684 2.1579184,41.359079 2.1577521,41.3592562 2.1569313,41.3589381 2.1565826,41.3589139 2.1554507,41.3588575 2.1547963,41.3588575</coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+</Folder>
+</Document></kml>
