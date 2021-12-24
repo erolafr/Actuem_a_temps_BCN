@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>GranViaDeLesCortsCatalanes</name>
+    <Style id="poly-673AB7-1200-77-normal">
+      <LineStyle>
+        <color>ffb73a67</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4db73a67</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-673AB7-1200-77-highlight">
+      <LineStyle>
+        <color>ffb73a67</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4db73a67</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-673AB7-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-673AB7-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-673AB7-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: Gran Via]]></description>
+      <styleUrl>#poly-673AB7-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>Gran Via</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1353862,41.3655718,0
+              2.1361318,41.3646499,0
+              2.2094795,41.4194059,0
+              2.2082242,41.4202909,0
+              2.1353862,41.3655718,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

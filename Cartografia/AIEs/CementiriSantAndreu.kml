@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>CementiriSantAndreu</name>
+    <Style id="poly-E65100-1200-77-normal">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d0051e6</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-E65100-1200-77-highlight">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d0051e6</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-E65100-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-E65100-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-E65100-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: CM_SantAndreu]]></description>
+      <styleUrl>#poly-E65100-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>CM_SantAndreu</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1768792,41.4363952,0
+              2.1766163,41.4360754,0
+              2.1774592,41.4357974,0
+              2.1783021,41.4355557,0
+              2.1796875,41.4349353,0
+              2.1800737,41.4360714,0
+              2.180291,41.4366183,0
+              2.1804573,41.4371914,0
+              2.1801461,41.4372799,0
+              2.1798645,41.4373442,0
+              2.179674,41.4373945,0
+              2.1794782,41.4374327,0
+              2.1791912,41.4375092,0
+              2.1788949,41.4375725,0
+              2.1785395,41.4376358,0
+              2.1780003,41.4376841,0
+              2.1779319,41.437669,0
+              2.1778528,41.4375292,0
+              2.1774773,41.437107,0
+              2.1771367,41.4367591,0
+              2.1768792,41.4363952,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

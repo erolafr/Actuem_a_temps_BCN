@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SuperillaPoblenou</name>
+    <Style id="poly-558B2F-1200-77-normal">
+      <LineStyle>
+        <color>ff2f8b55</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d2f8b55</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-558B2F-1200-77-highlight">
+      <LineStyle>
+        <color>ff2f8b55</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d2f8b55</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-558B2F-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-558B2F-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-558B2F-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: SI_Poblenou]]></description>
+      <styleUrl>#poly-558B2F-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>SI_Poblenou</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1931159,41.4033493,0
+              2.1908093,41.4016796,0
+              2.1927028,41.4002672,0
+              2.1950148,41.3986335,0
+              2.1989844,41.4015749,0
+              2.1949398,41.4046208,0
+              2.1931159,41.4033493,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

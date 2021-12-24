@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>CementiriSants</name>
+    <Style id="poly-E65100-1200-77-normal">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d0051e6</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-E65100-1200-77-highlight">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d0051e6</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-E65100-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-E65100-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-E65100-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: CM_Sants]]></description>
+      <styleUrl>#poly-E65100-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>CM_Sants</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1115142,41.3752678,0
+              2.1114619,41.3752326,0
+              2.1115115,41.3751732,0
+              2.1117971,41.3747354,0
+              2.1118742,41.3746383,0
+              2.1119675,41.3745271,0
+              2.112168,41.3745332,0
+              2.1123765,41.3745332,0
+              2.1125609,41.3745272,0
+              2.112799,41.3745372,0
+              2.1129317,41.3745442,0
+              2.1130537,41.3745674,0
+              2.1123953,41.3755466,0
+              2.1115142,41.3752678,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

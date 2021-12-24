@@ -17,6 +17,7 @@ Carreguem els paquets necesaris:
 library(sf)
 library(dplyr)
 library(tidyverse)
+library(gridExtra)
 ```
 
 Carreguem les dades obtingudes en els anteriors scripts:
@@ -36,7 +37,7 @@ En segon lloc, aquestes àrees d'interès especial (AIEs) van ser escollides cap
 
 Els diferents tipus de zones escollides són:
 
-- **Carrers conectors dels eixos de Barcelona**: Diagonal(CD), Gran via de les Corts Catalanes (CG) i Passeig de Sant Joan (CP)
+- **Carrers conectors dels eixos de Barcelona**: Avinguda Diagonal(CD), Gran via de les Corts Catalanes (CG) i Passeig de Sant Joan (CP)
 
 - **Superilles**: Superilla del Poblenou (SP) (https://ajuntament.barcelona.cat/superilles/ca/content/poblenou) i Superilla de Sant Antoni (SA) (https://ajuntament.barcelona.cat/superilles/ca/content/sant-antoni)
 
@@ -44,7 +45,7 @@ Els diferents tipus de zones escollides són:
 
 
 ## Descàrrega de polígons i importació a R
-Començo amb l'anàlisi d'una sola àrea, el Cementiri de Montjuic. Del mapa generat amb l'àrea exacta de les zones, descarreguem en KMZ (i transformem en KML per exemple amb https://mygeodata.cloud/converter/kmz-to-kml) l'àrea del cementiri de Montjuic, el guardo a la carpeta Cartogragia/AIEs i l'importem a R:
+Començo amb l'anàlisi d'una sola àrea, el Cementiri de Montjuic. Del mapa generat amb l'àrea exacta de les zones, descarreguem en KML l'àrea del cementiri de Montjuic, el guardo a la carpeta Cartogragia/AIEs i l'importem a R:
 ```{r, warning=FALSE, error=FALSE, message=FALSE}
 MM <- st_read("Cartografia/AIEs/CementiriMontjuic.kml")
 plot(MM[1], main="Cementiri de Montjuic (MM)")
@@ -54,9 +55,47 @@ Calculem-ne l'àrea, dividim per a tenir-ho en km2
 st_area(MM)/1000000
 ```
 
+Ara importem el conjunt de les altres AIEs:
+```{r, results="hide", warning=FALSE, error=FALSE, message=FALSE}
+CD <- st_read("Cartografia/AIEs/Diagonal.kml")
+CG <- st_read("Cartografia/AIEs/GranViaDeLesCortsCatalanes.kml")
+CP <- st_read("Cartografia/AIEs/PasseigDeSantJoan.kml")
+SP <- st_read("Cartografia/AIEs/SuperillaPoblenou.kml")
+SA <- st_read("Cartografia/AIEs/SuperillaSantAntoni.kml")
+MP <- st_read("Cartografia/AIEs/CementiriPoblenou.kml")
+MM <- st_read("Cartografia/AIEs/CementiriMontjuic.kml")
+MA <- st_read("Cartografia/AIEs/CementiriSantAndreu.kml")
+MH <- st_read("Cartografia/AIEs/CementiriHorta.kml")
+MS <- st_read("Cartografia/AIEs/CementiriSants.kml")
+```
+
+Vegem-les totes sobre el mapa de Barcelona per entendre l'àrea coberta:
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+barcelones <- st_read('Cartografia/shapefiles_catalunya_comarcas/shapefiles_catalunya_comarcas.shp')
+
+ggplot() +
+ geom_sf(data = barcelones) +
+  geom_point(aes(x = actdf$longitud, y = actdf$latitud), col = "firebrick3", alpha=0.1, size=0.3) +
+  xlim(2.05, 2.30) +
+  ylim(41.30, 41.50) + 
+  ggtitle("Registres totals espècies susceptibles a \n ser invasores al Barcelonès i AIEs") +
+  geom_sf(data = CD, fill="blue", alpha =0.3)+
+  geom_sf(data = CG, fill="blue", alpha =0.3)+
+  geom_sf(data = CP, fill="blue", alpha =0.3)+
+  geom_sf(data = SP, fill="green", alpha =0.3)+
+  geom_sf(data = SA, fill="green", alpha =0.3)+
+  geom_sf(data = SA, fill="black", alpha =0.3)+
+  geom_sf(data = MP, fill="black", alpha =0.3)+
+  geom_sf(data = MM, fill="black", alpha =0.3)+
+  geom_sf(data = MA, fill="black", alpha =0.3)+
+  geom_sf(data = MH, fill="black", alpha =0.3)+
+  geom_sf(data = MS, fill="black", alpha =0.3)+
+  xlab("Longitud") + ylab("Latitud") + theme_classic() 
+```
+
 
 ## Filtratge de registres per àrea
-Ara filtrem els registres dins l'àrea del cementiri de Montjuic:
+Ara filtrem els registres dins cada àrea, per exemple, per l'àrea del cementiri de Montjuic. Per a la resta d'àrees ho calcularem en base a funcions posteriorment.
 ```{r, warning=FALSE, error=FALSE, message=FALSE}
 actdf_sf <-  actdf %>% 
   st_as_sf(coords=c("longitud", "latitud"), crs=4326)
@@ -69,7 +108,7 @@ print(paste("Percentatge registres en l'àrea:", round(nrow(actdf_sf_MM)*100/ di
 
 
 ## Càlcul de densitat dins de les àrees d'interès especial
-Ara procedim a calcular la densitat dins les AIE, en registres totals/km2: 
+Ara procedim a calcular la densitat dins les AIE, en registres totals/km2. Ho fem amb l'exemple del cementiri de Montjuic. Per la resta d'AIEs ho introduirem dins de funcions més endavant. 
 ```{r}
 nrow(actdf_sf_MM)/(st_area(MM)/1000000)
 ```
@@ -85,7 +124,7 @@ num_registres <- function(area, inatdf) {
 num_registres(MM, actdf_sf[actdf_sf$taxon.name=="Mesembryanthemum cordifolium",])
 ```
 
-Preparo una funció per a donats un dataset, un nom d'espècie i una àrea d'interès, retorni el nombre de registres i una altra que retorni la densitat de registres en funció de l'àrea de l'AIE:
+Preparo una funció per a donats un dataset, un nom d'espècie i una àrea d'interès, retorni el nombre de registres i una altra que retorni la densitat de registres en funció de l'àrea de l'AIE, així podrem filtrar i calcular el nombre de registres i densitat de totes les AIE.
 ```{r}
 num_registres_especie_AIE <- function(dataset, especie, AIE) {
   inat_obs_pcsp_sf  <- dataset %>% st_intersection(AIE)
@@ -100,7 +139,7 @@ densitat_especie_AIE <- function(dataset, especie, AIE) {
 } 
 ```
 
-Ho provem amb l'espècie més abundant:
+Ho provem amb l'espècie més abundant en el cementiri de Montjuic:
 ```{r, warning=FALSE, error=FALSE, message=FALSE}
 num_registres_especie_AIE(actdf_sf, "Mesembryanthemum cordifolium", MM)
 densitat_especie_AIE(actdf_sf, "Mesembryanthemum cordifolium", MM)
@@ -114,7 +153,7 @@ graficsAIE <- function(dataset, AIE){
     # 1. Nº registres
   freqpl <- ggplot(datasetAIE,aes(x = fct_infreq(taxon.name))) + 
     geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres") + labs(title = (paste("Nombre de registres de registres a" , deparse(substitute(AIE)))))
-  print(freqpl)
+  #print(freqpl)
   
   # 2.  densitat de registres
   sp <- c()
@@ -127,27 +166,90 @@ graficsAIE <- function(dataset, AIE){
   dataespeciedensitat <- data.frame(especie = sp, densitat = densitat)
   print(dataespeciedensitat)
  densiplot<- ggplot(dataespeciedensitat, aes(x=reorder(especie, -densitat), y= densitat)) + geom_bar(stat="identity", color="coral", fill="white") + coord_flip() + ylab("Registres/km2") + xlab("Espècie") + labs(title = (paste("Densitat de registres a" , deparse(substitute(AIE)))))
- print(densiplot) 
+ #print(densiplot) 
  
   # 3. proporcio de cada especie
   propplot <- ggplot(dataespeciedensitat, aes(x="", y=densitat, fill=especie)) +
   geom_bar(stat="identity", width=1, color = "white") +
   coord_polar("y", start=0) + scale_fill_brewer(palette="Set1") + labs(title = (paste("Proporció de cada espècie a" , deparse(substitute(AIE))))) + xlab("") + ylab("")
+  #print(propplot)
+  
+  grid.arrange(freqpl, densiplot, nrow = 2)
   print(propplot)
 }
 
 ```
 
-La provem en l'AIE del cementiri de Montjuic:
-```{r, warning=FALSE, error=FALSE, message=FALSE}
-graficsAIE(actdf_sf, MM)
-```
 
 ## Comparació d'àrees d'interès especial
-Tests anova i multidimensionals
+En primer lloc generem els gràfics per a totes les AIEs amb la funció que hem creat, incloent també el global de la ciutat:
+
+**Global ciutat**
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+graficsAIE(actdf_sf, barcelones)
+```
+
+
+**Carrers:**
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+graficsAIE(actdf_sf, CD)
+graficsAIE(actdf_sf, CG)
+graficsAIE(actdf_sf, CP)
+```
+
+**Superilles:**
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+graficsAIE(actdf_sf, SP)
+graficsAIE(actdf_sf, SA)
+```
+
+**Cementiris:**
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+graficsAIE(actdf_sf, MP)
+graficsAIE(actdf_sf, MM)
+graficsAIE(actdf_sf, MA)
+graficsAIE(actdf_sf, MH)
+graficsAIE(actdf_sf, MS)
+```
+
+Per a testar diferències entre les AIEs, ens plantejem les següents preguntes:
+
+- A. Hi ha diferències entre el **nombre d'espècies** susceptibles a ser invasores **trobades** en el global de la ciutat, en carrers, superilles, i cementiris?
+- B. Hi ha diferències entre la **densitat** de registres del **global** d'espècies susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris?
+- C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris?
+- D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
+
+### A - Nombre d'espècies
+```{r}
+
+```
+
+### B - Densitat global
+```{r}
+
+```
+
+### C - Densitat per espècie
+```{r}
+
+```
+
+### D - Similitud entre AIEs
+```{r}
+
+```
 
 ## Comparació dins i fora àrees d'interès especial
+```{r}
+
+```
 
 ## Impacte esforç de mostreig en AIE en les dades globals
+```{r}
+
+```
 
 ## Mapes de densitat global i per espècie d'àrees d'interès especial
+```{r}
+
+```

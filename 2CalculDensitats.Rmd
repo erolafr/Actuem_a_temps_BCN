@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 L'objectiu d'aquest codi és generar el càlcul de les densitats de presència de les espècies susceptibles a ser invasores a la ciutat de Barcelona del projecte "Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona". El codi permetrà calcular el nombre de registres/m2 mitjà que hi ha a la ciutat de forma global i també per a cada espècie, possibilitat també l'anàlisi de zones en concret introduint polígons d'espais amb major esforç de mostreig o amb alguna peculiaritat.
 
 Carreguem els paquets necesaris:
-```{r echo=T, results='hide', warning=FALSE, error=FALSE, message=FALSE}
+```{r echo=T, warning=FALSE, error=FALSE, message=FALSE}
 library('sf')
 library(dplyr)
 library(leaflet)

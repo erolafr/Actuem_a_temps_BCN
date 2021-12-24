@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PasseigDeSantJoan</name>
+    <Style id="poly-673AB7-1200-77-normal">
+      <LineStyle>
+        <color>ffb73a67</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4db73a67</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-673AB7-1200-77-highlight">
+      <LineStyle>
+        <color>ffb73a67</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4db73a67</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-673AB7-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-673AB7-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-673AB7-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: Passeig de Sant Joan]]></description>
+      <styleUrl>#poly-673AB7-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>Passeig de Sant Joan</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1625742,41.404223,0
+              2.1668721,41.4009809,0
+              2.1711158,41.3977305,0
+              2.1797523,41.3912293,0
+              2.1799609,41.3909819,0
+              2.1830234,41.3885048,0
+              2.1841284,41.3893581,0
+              2.1808357,41.3915393,0
+              2.180472,41.3917484,0
+              2.1722337,41.3980661,0
+              2.1632662,41.4046808,0
+              2.1629765,41.4044846,0
+              2.1625742,41.404223,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

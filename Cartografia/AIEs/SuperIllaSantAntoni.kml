@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SuperIllaSantAntoni</name>
+    <Style id="poly-7CB342-1200-77-normal">
+      <LineStyle>
+        <color>ff42b37c</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d42b37c</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-7CB342-1200-77-highlight">
+      <LineStyle>
+        <color>ff42b37c</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d42b37c</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-7CB342-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-7CB342-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-7CB342-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: SI_SantAntoni]]></description>
+      <styleUrl>#poly-7CB342-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>SI_SantAntoni</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1574728,41.380871,0
+              2.1603843,41.378639,0
+              2.1593725,41.3779255,0
+              2.1577598,41.3774697,0
+              2.1586476,41.3763949,0
+              2.1609679,41.3781943,0
+              2.1627851,41.3769565,0
+              2.1615845,41.376164,0
+              2.1620409,41.3757798,0
+              2.163227,41.3765952,0
+              2.1651923,41.3750827,0
+              2.165431,41.3750867,0
+              2.1659379,41.3753402,0
+              2.1627219,41.3778299,0
+              2.1638726,41.3786531,0
+              2.1621828,41.3799693,0
+              2.160949,41.3790757,0
+              2.1580736,41.3813057,0
+              2.1574728,41.380871,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

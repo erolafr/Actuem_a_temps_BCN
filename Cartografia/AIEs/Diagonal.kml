@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Diagonal</name>
+    <Style id="poly-673AB7-1200-77-normal">
+      <LineStyle>
+        <color>ffb73a67</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4db73a67</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-673AB7-1200-77-highlight">
+      <LineStyle>
+        <color>ffb73a67</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4db73a67</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-673AB7-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-673AB7-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-673AB7-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>Diagonal</name>
+      <description><![CDATA[descripció: <br>nombre: ]]></description>
+      <styleUrl>#poly-673AB7-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value/>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.2194099,41.4122242,0
+              2.2033699,41.4080933,0
+              2.1868169,41.4039602,0
+              2.1051542,41.3832745,0
+              2.1055512,41.3823327,0
+              2.1871818,41.4028517,0
+              2.2037615,41.4068371,0
+              2.2199571,41.4108684,0
+              2.2194099,41.4122242,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

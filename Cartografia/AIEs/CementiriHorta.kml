@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>CementiriHorta</name>
+    <Style id="poly-E65100-1200-77-normal">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d0051e6</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-E65100-1200-77-highlight">
+      <LineStyle>
+        <color>ff0051e6</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d0051e6</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-E65100-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-E65100-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-E65100-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name/>
+      <description><![CDATA[descripció: <br>nombre: CM_Horta]]></description>
+      <styleUrl>#poly-E65100-1200-77</styleUrl>
+      <ExtendedData>
+        <Data name="descripció">
+          <value/>
+        </Data>
+        <Data name="nombre">
+          <value>CM_Horta</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              2.1551857,41.4407961,0
+              2.1551582,41.4407704,0
+              2.1551576,41.4407367,0
+              2.1553721,41.4405659,0
+              2.1556095,41.4404015,0
+              2.1558737,41.4402351,0
+              2.1561071,41.4403884,0
+              2.1563243,41.4405538,0
+              2.1555384,41.4411037,0
+              2.1553554,41.4409479,0
+              2.1551857,41.4407961,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>
