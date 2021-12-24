@@ -37,7 +37,7 @@ head(actdf)
 
 Les àrees mostrejades han estat delimitades en el següent mapa: <https://www.google.com/maps/d/u/0/edit?mid=1zKP73GWKfj9CqJmftumOEowJaoyUvBG4&usp=sharing>
 
-L'objectiu de la dessignació d'aquestes àrees ha estat múltiple. En primer lloc, considerant que l'abast del projecte no permetia cobrir tota l'àrea de la ciutat de Barcelona fent un registre intensiu de presències i absències de les 10 espècies selecciondes, els resultats obtinguts estaràn sempre esviaixats per l'esforç de mostreig no homogeni sobre la ciutat. Malgrat això, el present projecte prepara i posa en marxa un marc de recollida de dades i d'anàlisi de manera que gràcies a la contribució ciutadana sigui possible cada cop captar més la presència de les espècies per la ciutat. Per aquest motiu ens vam plantejar seleccionar àrees concretes de la ciutat on centrar els esforços i registrar no només presències sinò també absències de les 10 espècies de manera que sobre aquestes àrees el registre sigui total i poguem comparar-les amb la resta d'espais de la ciutat. En segon lloc, aquestes àrees d'interès especial (AIEs) van ser escollides captant l'heterogeneïtat de la ciutat i per a entendre el rol de certs espais d'ús divers pel ciutadà per a evaluar la presència i densitat de les espècies suceptibles a ser invasores en els diferents espais.
+L'objectiu de la dessignació d'aquestes àrees ha estat múltiple. En primer lloc, considerant que l'abast del projecte no permetia cobrir tota l'àrea de la ciutat de Barcelona fent un registre intensiu de presències i absències de les 10 espècies selecciondes, els resultats obtinguts estaràn sempre esviaixats per l'esforç de mostreig no homogeni sobre la ciutat. Malgrat això, el present projecte prepara i posa en marxa un marc de recollida de dades i d'anàlisi de manera que gràcies a la contribució ciutadana sigui possible cada cop captar més la presència de les espècies per la ciutat. Per aquest motiu ens vam plantejar seleccionar àrees concretes de la ciutat on centrar els esforços i registrar no només presències sinò també absències de les 10 espècies de manera que sobre aquestes àrees el registre sigui total i poguem comparar-les amb la resta d'espais de la ciutat. Una gran diferència entre les dades globals i les àrees mostrejades amb absència i presència (aquestes àrees d'interès especial) revelaria la incertesa real que tenim sobre la presència d'aquestes espècies a la ciutat de Barcelona. En segon lloc, aquestes àrees d'interès especial (AIEs) van ser escollides captant l'heterogeneïtat de la ciutat i per a entendre el rol de certs espais d'ús divers pel ciutadà per a evaluar la presència i densitat de les espècies suceptibles a ser invasores en els diferents espais.
 
 Els diferents tipus de zones escollides són:
 
@@ -861,8 +861,117 @@ analisi_AIE_especie("Senecio angulatus", "goldenrod2")
 
 D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
 
-## Comparació dins i fora àrees d'interès especial
+``` r
+### PENDENT!
+```
 
-## Impacte esforç de mostreig en AIE en les dades globals
+## Carrers amb Absències i presencies vs el global de la ciutat
 
-## Mapes de densitat global i per espècie d'àrees d'interès especial
+En aquest darrer apartat avaluarem l'impacte de **l'esforç de mostreig en la captura de registres**. Revisar absències i presències de les 10 espècies susceptibles a ser invasores a la ciutat de Barcelona és una tasca que requereix de molt d'esforç, però podem saber si les presències registrades a tota la ciutat es corresponen a la densitat observada en àrees on s'ha revisat explícitament si hi havia o no les presències. Així doncs, assumint que els tres carrers mostrejats de Barcelona representen el global de la ciutat, revisarem el nombre total de registres que podria haver-hi si fessim el mateix esforç de mostreig en tot el territori.
+
+Calculem la cobertura en àrea:
+
+``` r
+areaCD <- st_area(CD)/ 1000000; areaCP<- st_area(CP)/ 1000000; areaCG<- st_area(CG)/ 1000000
+
+areaCarrers <- (areaCD+areaCP+areaCG)
+areaBCN <- st_area(barcelones)/ 1000000
+print(paste("L'àrea total coberta amb els tres carrers és (en km2):", round(areaCarrers,3) ))
+```
+
+    ## [1] "L'àrea total coberta amb els tres carrers és (en km2): 2.598"
+
+``` r
+print(paste("L'àrea total del Barcelonés és (en km2):", round(areaBCN,3) ))
+```
+
+    ## [1] "L'àrea total del Barcelonés és (en km2): 146.18"
+
+Calculem el nombre de registres i el percentatge que suposen
+
+``` r
+print(paste("Nº registres al Barcelonés:", dim(actdf_sf)[1]))
+```
+
+    ## [1] "Nº registres al Barcelonés: 4497"
+
+``` r
+actdf_sf_CD  <- actdf_sf %>% st_intersection(CD)
+print(paste("Nº registres en l'àrea CD:", nrow(actdf_sf_CD)))
+```
+
+    ## [1] "Nº registres en l'àrea CD: 369"
+
+``` r
+print(paste("Percentatge registres en l'àreaCD:", round(nrow(actdf_sf_CD)*100/ dim(actdf_sf)[1],2), "%"))
+```
+
+    ## [1] "Percentatge registres en l'àreaCD: 8.21 %"
+
+``` r
+actdf_sf_CG  <- actdf_sf %>% st_intersection(CG)
+print(paste("Nº registres en l'àrea CG:", nrow(actdf_sf_CG)))
+```
+
+    ## [1] "Nº registres en l'àrea CG: 156"
+
+``` r
+print(paste("Percentatge registres en l'àrea CG:", round(nrow(actdf_sf_CG)*100/ dim(actdf_sf)[1],2), "%"))
+```
+
+    ## [1] "Percentatge registres en l'àrea CG: 3.47 %"
+
+``` r
+actdf_sf_CP  <- actdf_sf %>% st_intersection(CP)
+print(paste("Nº registres en l'àrea CP:", nrow(actdf_sf_CP)))
+```
+
+    ## [1] "Nº registres en l'àrea CP: 25"
+
+``` r
+print(paste("Percentatge registres en l'àrea CP:", round(nrow(actdf_sf_CP)*100/ dim(actdf_sf)[1],2), "%"))
+```
+
+    ## [1] "Percentatge registres en l'àrea CP: 0.56 %"
+
+Revisem quants registes suposarien aquestes densitats sobre tota la ciutat de Barcelona:
+
+``` r
+print(paste("Nº registres totals al Barcelonés estimats segons CD és:", round((areaBCN*nrow(actdf_sf_CD)/areaCD),2)))
+```
+
+    ## [1] "Nº registres totals al Barcelonés estimats segons CD és: 42876.75"
+
+``` r
+print(paste("Nº registres totals al Barcelonés estimats segons CG és:", round((areaBCN*nrow(actdf_sf_CG)/areaCG),2)))
+```
+
+    ## [1] "Nº registres totals al Barcelonés estimats segons CG és: 20354.08"
+
+``` r
+print(paste("Nº registres totals al Barcelonés estimats segons CP és:", round((areaBCN*nrow(actdf_sf_CP)/areaCP),2)))
+```
+
+    ## [1] "Nº registres totals al Barcelonés estimats segons CP és: 16642.44"
+
+``` r
+valors <- c(as.numeric(areaBCN*nrow(actdf_sf_CD)/areaCD),as.numeric(areaBCN*nrow(actdf_sf_CG)/areaCG), as.numeric(areaBCN*nrow(actdf_sf_CP)/areaCP))
+
+print(paste("De mitjana Barcelona podria tenir", round(mean(valors)),"+/-", round(se(valors)), "registres d'espècies potencialment invasores"))
+```
+
+    ## [1] "De mitjana Barcelona podria tenir 26624 +/- 8196 registres d'espècies potencialment invasores"
+
+Això en percentatge implica que coneixem i desconeixem el següent percentage de registres a la ciutat:
+
+``` r
+paste("El percentatge de descoberta és del", round(sum(nrow(actdf_sf_CG), nrow(actdf_sf_CD), nrow(actdf_sf_CP)) *100 / mean(valors),2),"%")
+```
+
+    ## [1] "El percentatge de descoberta és del 2.07 %"
+
+``` r
+paste("El percentatge de registres faltants és del", round(100-sum(nrow(actdf_sf_CG), nrow(actdf_sf_CD), nrow(actdf_sf_CP)) *100 / mean(valors)),"%")
+```
+
+    ## [1] "El percentatge de registres faltants és del 98 %"
