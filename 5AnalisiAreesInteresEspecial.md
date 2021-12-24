@@ -216,7 +216,6 @@ graficsAIE <- function(dataset, AIE){
     # 1. Nº registres
   freqpl <- ggplot(datasetAIE,aes(x = fct_infreq(taxon.name))) + 
     geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres") + labs(title = (paste("Nombre de registres de registres a" , deparse(substitute(AIE)))))
-  #print(freqpl)
   
   # 2.  densitat de registres
   sp <- c()
@@ -229,13 +228,11 @@ graficsAIE <- function(dataset, AIE){
   dataespeciedensitat <- data.frame(especie = sp, densitat = densitat)
   print(dataespeciedensitat)
  densiplot<- ggplot(dataespeciedensitat, aes(x=reorder(especie, -densitat), y= densitat)) + geom_bar(stat="identity", color="coral", fill="white") + coord_flip() + ylab("Registres/km2") + xlab("Espècie") + labs(title = (paste("Densitat de registres a" , deparse(substitute(AIE)))))
- #print(densiplot) 
  
   # 3. proporcio de cada especie
   propplot <- ggplot(dataespeciedensitat, aes(x="", y=densitat, fill=especie)) +
   geom_bar(stat="identity", width=1, color = "white") +
   coord_polar("y", start=0) + scale_fill_brewer(palette="Set1") + labs(title = (paste("Proporció de cada espècie a" , deparse(substitute(AIE))))) + xlab("") + ylab("")
-  #print(propplot)
   
   grid.arrange(freqpl, densiplot, nrow = 2)
   print(propplot)
@@ -413,13 +410,549 @@ Per a testar diferències entre les AIEs, ens plantejem les següents preguntes:
 -   C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris?
 -   D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
 
+A continuació generearem les dades per a poder respondre a cadascuna de les preguntes plantejades.
+
 ### A - Nombre d'espècies
+
+Testarem la pregunta A:Hi ha diferències entre el **nombre d'espècies** susceptibles a ser invasores **trobades** en el global de la ciutat, en carrers, superilles, i cementiris?. Per a fer-ho, calculem el nombre d'espècies i la densitat:
+
+``` r
+num_species <- function(dataset, AIE){
+ datasetAIE  <- dataset %>% st_intersection(AIE)
+  return(length(levels(as.factor(datasetAIE$taxon.name))))
+}
+
+num_species_dens <- function(dataset, AIE){
+ datasetAIE  <- dataset %>% st_intersection(AIE)
+  return(length(levels(as.factor(datasetAIE$taxon.name)))/(st_area(AIE)/1000000))
+}
+
+llistatAIE <- c("barcelones", "CD", "CG", "CP", "SP", "SA", "MP" , "MM", "MA", "MH", "MS")
+
+num_species_found <- c()
+num_species_found_density <- c()
+x <- 1
+for (i in llistatAIE){
+  num_species_found[x]<- num_species(actdf_sf, get(i))
+   num_species_found_density[x]<- num_species_dens(actdf_sf, get(i))
+  x<- x+1
+}
+
+num_species_found_df <- data.frame(AIE = llistatAIE, num_species_found=num_species_found, num_species_found_density = num_species_found_density)
+num_species_found_df
+```
+
+    ##           AIE num_species_found num_species_found_density
+    ## 1  barcelones                11                0.07524948
+    ## 2          CD                10                7.94888750
+    ## 3          CG                10                8.92560681
+    ## 4          CP                 4               18.21577957
+    ## 5          SP                 6               26.28588096
+    ## 6          SA                 1                8.18583554
+    ## 7          MP                 6               98.15935292
+    ## 8          MM                 5               24.90041447
+    ## 9          MA                 6              103.76827258
+    ## 10         MH                 2              435.65570372
+    ## 11         MS                 3              329.88487892
+
+Generem gràfics per a veure els resultats:
+
+``` r
+ggplot(num_species_found_df, aes(x=AIE, y= num_species_found)) + geom_bar(stat="identity", color="black", fill="lightgreen") + coord_flip() + ylab("Nº espècies trobades") + xlab("Espècie") + labs(title = (paste("Nombre espècies trobades" , deparse(substitute(AIE)))))
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-18-1.png)
+
+``` r
+ggplot(num_species_found_df, aes(x=AIE, y= num_species_found_density)) + geom_bar(stat="identity", color="black", fill="white") + coord_flip() + ylab("Nº espècies trobades/km2") + xlab("Espècie") + labs(title = (paste("Densitat espècies trobades" , deparse(substitute(AIE)))))
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-18-2.png)
+
+Agrupem per tipologia de AIE:
+
+``` r
+num_species_found_df$tipus <- c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
+num_species_found_df
+```
+
+    ##           AIE num_species_found num_species_found_density     tipus
+    ## 1  barcelones                11                0.07524948 Barcelona
+    ## 2          CD                10                7.94888750    Carrer
+    ## 3          CG                10                8.92560681    Carrer
+    ## 4          CP                 4               18.21577957    Carrer
+    ## 5          SP                 6               26.28588096 Superilla
+    ## 6          SA                 1                8.18583554 Superilla
+    ## 7          MP                 6               98.15935292 Cementiri
+    ## 8          MM                 5               24.90041447 Cementiri
+    ## 9          MA                 6              103.76827258 Cementiri
+    ## 10         MH                 2              435.65570372 Cementiri
+    ## 11         MS                 3              329.88487892 Cementiri
+
+``` r
+se <- function(x) sqrt(var(x) / length(x))
+
+df <- num_species_found_df %>% 
+  group_by(tipus) %>% 
+  summarise(mean = mean(num_species_found),
+            se = se(num_species_found))
+ggplot(df) +
+    geom_bar( aes(x=tipus, y=mean), stat="identity", color="black", fill="lightgreen") +
+    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Nº espècies trobades") + xlab("Tipus AIE") + labs(title = (paste("Nombre espècies trobades" , deparse(substitute(AIE)))))
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-20-1.png)
+
+``` r
+df <- num_species_found_df %>% 
+  group_by(tipus) %>% 
+  summarise(mean = mean(num_species_found_density),
+            se = se(num_species_found_density))
+ggplot(df) +
+    geom_bar( aes(x=tipus, y=mean), stat="identity", color="black", fill="lightgreen") +
+    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Densitat de nombre d'espècies trobades/km2") + xlab("Tipus AIE") + labs(title = (paste("Densitat de nombre d'espècies trobades" , deparse(substitute(AIE)))))
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-20-2.png)
+
+Testem si hi ha diferències significatives entre tipus d'AIE. Revisem si complim amb els requisits per a aplicar una ANOVA d'un factor, malgrat el disseny és no balancejat:
+
+``` r
+num_species_found_df_test <-num_species_found_df[-c(num_species_found_df$AIE=="barcelones"),] 
+
+# Normalitat
+shapiro.test(num_species_found_df_test$num_species_found) # si complim
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  num_species_found_df_test$num_species_found
+    ## W = 0.927, p-value = 0.419
+
+``` r
+shapiro.test(log(num_species_found_df_test$num_species_found_density)) # Transformant a logaritme si complim requisit de normalitat
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  log(num_species_found_df_test$num_species_found_density)
+    ## W = 0.89038, p-value = 0.1713
+
+``` r
+# Homocedasticitat
+bartlett.test(num_species_found ~ tipus, data = num_species_found_df_test) # si complim
+```
+
+    ## 
+    ##  Bartlett test of homogeneity of variances
+    ## 
+    ## data:  num_species_found by tipus
+    ## Bartlett's K-squared = 1.1432, df = 2, p-value = 0.5646
+
+``` r
+bartlett.test(log(num_species_found_density) ~ tipus, data = num_species_found_df_test) # Transformant a logaritme si complim requisit 
+```
+
+    ## 
+    ##  Bartlett test of homogeneity of variances
+    ## 
+    ## data:  log(num_species_found_density) by tipus
+    ## Bartlett's K-squared = 1.4031, df = 2, p-value = 0.4958
+
+Com que complim requisits procedim amb l'aplicació del test ANOVA d'un factor:
+
+-   Pel nombre d'espècies trobades
+
+``` r
+# Compute the analysis of variance
+res.aov <- aov(num_species_found ~ tipus, data = num_species_found_df_test)
+# Summary of the analysis
+summary(res.aov)
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## tipus        2   32.4    16.2   2.282  0.173
+    ## Residuals    7   49.7     7.1
+
+``` r
+# Multiple comparisons
+TukeyHSD(res.aov)
+```
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = num_species_found ~ tipus, data = num_species_found_df_test)
+    ## 
+    ## $tipus
+    ##                     diff        lwr      upr     p adj
+    ## Cementiri-Carrer    -3.6  -9.330895 2.130895 0.2226522
+    ## Superilla-Carrer    -4.5 -11.663619 2.663619 0.2226522
+    ## Superilla-Cementiri -0.9  -7.465565 5.665565 0.9151359
+
+-   Pel nombre d'espècies trobades per àrea
+
+``` r
+# Compute the analysis of variance
+res.aov <- aov(log(num_species_found_density) ~ tipus, data = num_species_found_df_test)
+# Summary of the analysis
+summary(res.aov)
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## tipus        2 13.992   6.996   7.805 0.0165 *
+    ## Residuals    7  6.274   0.896                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+# Multiple comparisons
+TukeyHSD(res.aov)
+```
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = log(num_species_found_density) ~ tipus, data = num_species_found_df_test)
+    ## 
+    ## $tipus
+    ##                           diff        lwr      upr     p adj
+    ## Cementiri-Carrer     2.4757651  0.4395277 4.512002 0.0214284
+    ## Superilla-Carrer     0.2976371 -2.2476596 2.842934 0.9372885
+    ## Superilla-Cementiri -2.1781280 -4.5109309 0.154675 0.0653093
+
+Únicament trobem diferències significatives en el tipus d'AIE considerant el nombre d'espècies trobades per àrea i les diferències es troben entre els Cementiris i els Carrers, trobant als Cementiris significativament més espècies que als Carrers de Barcleona per unitat d'àrea.
 
 ### B - Densitat global
 
+Testejem ara la segona pregunta B: Hi ha diferències entre la **densitat** de registres del **global** d'espècies susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Generem les dades i la visualització:
+
+``` r
+densitat_global<- function(dataset, AIE){
+ datasetAIE  <- dataset %>% st_intersection(AIE)
+  return(nrow(datasetAIE)/(st_area(AIE)/1000000))
+ }
+
+llistatAIE <- c("barcelones", "CD", "CG", "CP", "SP", "SA", "MP" , "MM", "MA", "MH", "MS")
+vectorres <- c()
+x <- 1
+for (i in llistatAIE){
+  vectorres[x]<- densitat_global(actdf_sf, get(i))
+  x<- x+1
+}
+
+densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
+densitat_df$tipus <- c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
+densitat_df
+```
+
+    ##           AIE    densitat     tipus
+    ## 1  barcelones   30.742834 Barcelona
+    ## 2          CD  293.313949    Carrer
+    ## 3          CG  139.239466    Carrer
+    ## 4          CP  113.848622    Carrer
+    ## 5          SP  188.382147 Superilla
+    ## 6          SA    8.185836 Superilla
+    ## 7          MP 2208.585441 Cementiri
+    ## 8          MM  886.454755 Cementiri
+    ## 9          MA  605.314923 Cementiri
+    ## 10         MH 1089.139259 Cementiri
+    ## 11         MS  769.731384 Cementiri
+
+``` r
+ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill="gold") + coord_flip() + ylab("Densitat global espècies/km2") + xlab("Espècie") + labs(title = (paste("Densitat global espècies" , deparse(substitute(AIE)))))
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-24-1.png)
+
+``` r
+df <- densitat_df %>% 
+  group_by(tipus) %>% 
+  summarise(mean = mean(densitat),
+            se = se(densitat))
+ggplot(df) +
+    geom_bar( aes(x=tipus, y=mean), stat="identity", color="black", fill="gold") +
+    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Densitat global espècies/km2") + xlab("Tipus AIE") + labs(title = (paste("Densitat global espècies" , deparse(substitute(AIE)))))
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-24-2.png)
+
+Testem si hi ha diferències significatives entre tipus d'AIE. Revisem si complim amb els requisits per a aplicar una ANOVA d'un factor, malgrat el disseny és no balancejat:
+
+``` r
+densitat_df_test <-densitat_df[-c(densitat_df$AIE=="barcelones"),] 
+
+# Normalitat
+shapiro.test(log(densitat_df_test$densitat)) # si complim
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  log(densitat_df_test$densitat)
+    ## W = 0.90471, p-value = 0.2466
+
+``` r
+# Homocedasticitat
+bartlett.test(log(densitat) ~ tipus, data = densitat_df_test) # si complim
+```
+
+    ## 
+    ##  Bartlett test of homogeneity of variances
+    ## 
+    ## data:  log(densitat) by tipus
+    ## Bartlett's K-squared = 4.9011, df = 2, p-value = 0.08625
+
+Com que complim requisits procedim amb l'aplicació del test ANOVA d'un factor:
+
+``` r
+# Compute the analysis of variance
+res.aov <- aov(log(densitat) ~ tipus, data = densitat_df_test)
+# Summary of the analysis
+summary(res.aov)
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## tipus        2 16.529   8.264   9.061 0.0114 *
+    ## Residuals    7  6.385   0.912                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+# Multiple comparisons
+TukeyHSD(res.aov)
+```
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = log(densitat) ~ tipus, data = densitat_df_test)
+    ## 
+    ## $tipus
+    ##                          diff       lwr        upr     p adj
+    ## Cementiri-Carrer     1.789018 -0.265045  3.8430811 0.0842121
+    ## Superilla-Carrer    -1.446997 -4.014576  1.1205816 0.2847542
+    ## Superilla-Cementiri -3.236015 -5.589240 -0.8827904 0.0118155
+
+Sí hi ha diferències entre tipus d'AIE, específicament entre les superilles i els cementiris, on aquests darrers presenten una densitat d'espècies susceptibles a ser invasores molt superior, tal i com veiem als gràfics.
+
 ### C - Densitat per espècie
 
+Passem a la tercera pregunta, ens plantejave,: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi:
+
+``` r
+analisi_AIE_especie <- function(especie, colorespecie){
+df_especie <-actdf_sf[actdf_sf$taxon.name==especie,]
+vectorres <- c()
+x <- 1
+for (i in llistatAIE){
+  vectorres[x]<- densitat_global(df_especie, get(i)) # Aquí canviem el dataset d'entrada
+  x<- x+1
+}
+
+densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
+densitat_df$tipus <- c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
+#print(densitat_df)
+
+g1<-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill=colorespecie) + ylab("Registres/km2") + xlab("Espècie") + labs(title = (paste("Densitat" , paste(especie))))
+
+df <- densitat_df %>% 
+  group_by(tipus) %>% 
+  summarise(mean = mean(densitat),
+            se = se(densitat))
+g2<-ggplot(df) +
+    geom_bar( aes(x=tipus, y=mean), stat="identity", color="black", fill=colorespecie) +
+    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Registres/km2") + xlab("Tipus AIE") + labs(title = (paste("Densitat" , paste(especie))))
+
+grid.arrange(g1, g2, nrow = 1)
+}
+```
+
+L'apliquem a les espècies:
+
+``` r
+analisi_AIE_especie("Acacia saligna", "yellow")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-1.png)
+
+``` r
+analisi_AIE_especie("Cenchrus longisetus", "gray")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-2.png)
+
+``` r
+analisi_AIE_especie("Dichondra micrantha", "lightgreen")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-3.png)
+
+``` r
+analisi_AIE_especie("Ipomoea indica", "pink")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-4.png)
+
+``` r
+analisi_AIE_especie("Kalanchoe × houghtonii", "red")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-5.png)
+
+``` r
+analisi_AIE_especie("Lantana camara", "orange")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-6.png)
+
+``` r
+analisi_AIE_especie("Ligustrum lucidum", "black")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-7.png)
+
+``` r
+analisi_AIE_especie("Mesembryanthemum cordifolium", "purple")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-8.png)
+
+``` r
+analisi_AIE_especie("Mirabilis jalapa", "darkred")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-9.png)
+
+``` r
+analisi_AIE_especie("Senecio angulatus", "goldenrod2")
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-10.png)
+
+Cal incorporar estadística al gràfic
+
+``` r
+df_especie <-actdf_sf[actdf_sf$taxon.name=="Acacia saligna",]
+vectorres <- c()
+x <- 1
+for (i in llistatAIE){
+  vectorres[x]<- densitat_global(df_especie, get(i)) # Aquí canviem el dataset d'entrada
+  x<- x+1
+}
+```
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+``` r
+densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
+densitat_df$tipus <- c(NA, "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
+
+
+
+# Normalitat
+shapiro.test(densitat_df$densitat) # si complim
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  densitat_df$densitat
+    ## W = 0.35805, p-value = 3.179e-08
+
+``` r
+# Homocedasticitat
+bartlett.test(densitat ~ tipus, data = densitat_df) # si complim
+```
+
+    ## 
+    ##  Bartlett test of homogeneity of variances
+    ## 
+    ## data:  densitat by tipus
+    ## Bartlett's K-squared = Inf, df = 2, p-value < 2.2e-16
+
+``` r
+# Compute the analysis of variance
+res.aov <- aov(densitat ~ tipus, data = densitat_df)
+# Summary of the analysis
+summary(res.aov)
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## tipus        2   26.8  13.402     2.8  0.128
+    ## Residuals    7   33.5   4.786               
+    ## 1 observation deleted due to missingness
+
+``` r
+# Multiple comparisons
+TukeyHSD(res.aov)
+```
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = densitat ~ tipus, data = densitat_df)
+    ## 
+    ## $tipus
+    ##                             diff       lwr      upr     p adj
+    ## Cementiri-Carrer    1.480297e-16 -4.705354 4.705354 1.0000000
+    ## Superilla-Carrer    4.092918e+00 -1.788774 9.974610 0.1706592
+    ## Superilla-Cementiri 4.092918e+00 -1.297742 9.483578 0.1323971
+
 ### D - Similitud entre AIEs
+
+D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
 
 ## Comparació dins i fora àrees d'interès especial
 
