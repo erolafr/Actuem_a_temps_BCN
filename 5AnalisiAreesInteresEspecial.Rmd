@@ -18,6 +18,7 @@ library(sf)
 library(dplyr)
 library(tidyverse)
 library(gridExtra)
+library(pgirmess)
 ```
 
 Carreguem les dades obtingudes en els anteriors scripts:
@@ -374,7 +375,7 @@ Sí hi ha diferències entre tipus d'AIE, específicament entre les superilles i
 
 
 ### C - Densitat per espècie
-Passem a la tercera pregunta, ens plantejave,: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi:
+Passem a la tercera pregunta, ens plantejave,: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi. Previament testo a banda el compliment de les assumpcions de la ANOVA per a cada espècie. No es compleixen les condicions en cap de manera que és necesari aplicar un test no paramètric. Opto pel test de Kruskal-Wallis, l'incorporo a la funció. 
 ```{r, warning=FALSE, error=FALSE, message=FALSE}
 analisi_AIE_especie <- function(especie, colorespecie){
 df_especie <-actdf_sf[actdf_sf$taxon.name==especie,]
@@ -395,9 +396,22 @@ df <- densitat_df %>%
   group_by(tipus) %>% 
   summarise(mean = mean(densitat),
             se = se(densitat))
+
+# test no parametric:
+nparam <- kruskal.test(densitat ~ tipus, data = densitat_df)
+
+if (nparam$p.value < 0.05) {
+  print(kruskalmc(densitat_df$densitat, densitat_df$tipus))
+  pvalor <- round(nparam$p.value,3)
+} else{
+  pvalor = "NS"
+}
+
+# pvalor <- nparam$p.value # Si es volgués veure el p-valor encara que sigui no significatiu.
+
 g2<-ggplot(df) +
     geom_bar( aes(x=tipus, y=mean), stat="identity", color="black", fill=colorespecie) +
-    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Registres/km2") + xlab("Tipus AIE") + labs(title = (paste("Densitat" , paste(especie))))
+    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Registres/km2") + xlab("Tipus AIE") + labs(title = (paste("p-valor =", pvalor)))
 
 grid.arrange(g1, g2, nrow = 1)
 }
@@ -417,35 +431,6 @@ analisi_AIE_especie("Mirabilis jalapa", "darkred")
 analisi_AIE_especie("Senecio angulatus", "goldenrod2")
 ```
 
-Cal incorporar estadística al gràfic
-```{r}
-df_especie <-actdf_sf[actdf_sf$taxon.name=="Acacia saligna",]
-vectorres <- c()
-x <- 1
-for (i in llistatAIE){
-  vectorres[x]<- densitat_global(df_especie, get(i)) # Aquí canviem el dataset d'entrada
-  x<- x+1
-}
-
-densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
-densitat_df$tipus <- c(NA, "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
-
-
-
-# Normalitat
-shapiro.test(densitat_df$densitat) # si complim
-
-# Homocedasticitat
-bartlett.test(densitat ~ tipus, data = densitat_df) # si complim
-
-# Compute the analysis of variance
-res.aov <- aov(densitat ~ tipus, data = densitat_df)
-# Summary of the analysis
-summary(res.aov)
-# Multiple comparisons
-TukeyHSD(res.aov)
-```
-
 
 ### D - Similitud entre AIEs
 D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
@@ -456,18 +441,9 @@ D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en l
 
 
 
-
-## Comparació dins i fora àrees d'interès especial
-```{r}
-
-```
-
 ## Impacte esforç de mostreig en AIE en les dades globals
+En els anàlisis realitzats en aquest script
 ```{r}
 
 ```
 
-## Mapes de densitat global i per espècie d'àrees d'interès especial
-```{r}
-
-```

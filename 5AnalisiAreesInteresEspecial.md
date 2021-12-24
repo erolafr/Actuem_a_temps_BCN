@@ -14,6 +14,7 @@ library(sf)
 library(dplyr)
 library(tidyverse)
 library(gridExtra)
+library(pgirmess)
 ```
 
 Carreguem les dades obtingudes en els anteriors scripts:
@@ -740,7 +741,7 @@ Sí hi ha diferències entre tipus d'AIE, específicament entre les superilles i
 
 ### C - Densitat per espècie
 
-Passem a la tercera pregunta, ens plantejave,: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi:
+Passem a la tercera pregunta, ens plantejave,: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi. Previament testo a banda el compliment de les assumpcions de la ANOVA per a cada espècie. No es compleixen les condicions en cap de manera que és necesari aplicar un test no paramètric. Opto pel test de Kruskal-Wallis, l'incorporo a la funció.
 
 ``` r
 analisi_AIE_especie <- function(especie, colorespecie){
@@ -762,9 +763,22 @@ df <- densitat_df %>%
   group_by(tipus) %>% 
   summarise(mean = mean(densitat),
             se = se(densitat))
+
+# test no parametric:
+nparam <- kruskal.test(densitat ~ tipus, data = densitat_df)
+
+if (nparam$p.value < 0.05) {
+  print(kruskalmc(densitat_df$densitat, densitat_df$tipus))
+  pvalor <- round(nparam$p.value,3)
+} else{
+  pvalor = "NS"
+}
+
+# pvalor <- nparam$p.value # Si es volgués veure el p-valor encara que sigui no significatiu.
+
 g2<-ggplot(df) +
     geom_bar( aes(x=tipus, y=mean), stat="identity", color="black", fill=colorespecie) +
-    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Registres/km2") + xlab("Tipus AIE") + labs(title = (paste("Densitat" , paste(especie))))
+    geom_errorbar( aes(x=tipus, ymin=mean-se, ymax=mean+se), width=0.4, colour="black", alpha=0.9, size=0.5) + ylab("Registres/km2") + xlab("Tipus AIE") + labs(title = (paste("p-valor =", pvalor)))
 
 grid.arrange(g1, g2, nrow = 1)
 }
@@ -787,6 +801,17 @@ analisi_AIE_especie("Cenchrus longisetus", "gray")
 ``` r
 analisi_AIE_especie("Dichondra micrantha", "lightgreen")
 ```
+
+    ## Multiple comparison test after Kruskal-Wallis 
+    ## p.value: 0.05 
+    ## Comparisons
+    ##                     obs.dif critical.dif difference
+    ## Barcelona-Carrer          2    10.103756      FALSE
+    ## Barcelona-Cementiri       4     9.585265      FALSE
+    ## Barcelona-Superilla       4    10.716652      FALSE
+    ## Carrer-Cementiri          6     6.390176      FALSE
+    ## Carrer-Superilla          6     7.987721      FALSE
+    ## Cementiri-Superilla       0     7.320867      FALSE
 
 ![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-3.png)
 
@@ -831,124 +856,6 @@ analisi_AIE_especie("Senecio angulatus", "goldenrod2")
 ```
 
 ![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-28-10.png)
-
-Cal incorporar estadística al gràfic
-
-``` r
-df_especie <-actdf_sf[actdf_sf$taxon.name=="Acacia saligna",]
-vectorres <- c()
-x <- 1
-for (i in llistatAIE){
-  vectorres[x]<- densitat_global(df_especie, get(i)) # Aquí canviem el dataset d'entrada
-  x<- x+1
-}
-```
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-``` r
-densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
-densitat_df$tipus <- c(NA, "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
-
-
-
-# Normalitat
-shapiro.test(densitat_df$densitat) # si complim
-```
-
-    ## 
-    ##  Shapiro-Wilk normality test
-    ## 
-    ## data:  densitat_df$densitat
-    ## W = 0.35805, p-value = 3.179e-08
-
-``` r
-# Homocedasticitat
-bartlett.test(densitat ~ tipus, data = densitat_df) # si complim
-```
-
-    ## 
-    ##  Bartlett test of homogeneity of variances
-    ## 
-    ## data:  densitat by tipus
-    ## Bartlett's K-squared = Inf, df = 2, p-value < 2.2e-16
-
-``` r
-# Compute the analysis of variance
-res.aov <- aov(densitat ~ tipus, data = densitat_df)
-# Summary of the analysis
-summary(res.aov)
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## tipus        2   26.8  13.402     2.8  0.128
-    ## Residuals    7   33.5   4.786               
-    ## 1 observation deleted due to missingness
-
-``` r
-# Multiple comparisons
-TukeyHSD(res.aov)
-```
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = densitat ~ tipus, data = densitat_df)
-    ## 
-    ## $tipus
-    ##                             diff       lwr      upr     p adj
-    ## Cementiri-Carrer    1.480297e-16 -4.705354 4.705354 1.0000000
-    ## Superilla-Carrer    4.092918e+00 -1.788774 9.974610 0.1706592
-    ## Superilla-Cementiri 4.092918e+00 -1.297742 9.483578 0.1323971
 
 ### D - Similitud entre AIEs
 
