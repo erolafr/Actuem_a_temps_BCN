@@ -975,3 +975,37 @@ paste("El percentatge de registres faltants és del", round(100-sum(nrow(actdf_s
 ```
 
     ## [1] "El percentatge de registres faltants és del 98 %"
+
+Calculem el nombre de registres potencials a la ciutat de Barcelona per a cada espècie:
+
+``` r
+reg_potencials_especie <- function(especie){
+actdf_sf_CD_SP <-  actdf_sf_CD[actdf_sf_CD$taxon.name==especie,]
+actdf_sf_CP_SP <- actdf_sf_CP[actdf_sf_CP$taxon.name==especie,] 
+actdf_sf_CG_SP <- actdf_sf_CG[actdf_sf_CG$taxon.name==especie,]
+
+valors_SP <- c((areaBCN*nrow(actdf_sf_CD_SP)/areaCD), (areaBCN*nrow(actdf_sf_CG_SP)/areaCD), (areaBCN*nrow(actdf_sf_CP_SP)/areaCD))
+
+print(paste("De mitjana Barcelona podria tenir", round(mean(valors_SP)),"+/-", round(se(valors_SP)), "registres de", especie))
+}
+```
+
+Fem un bucle per a totes les espècies:
+
+``` r
+for (i in 1:length(levels(as.factor(actdf$taxon.name)))){
+    reg_potencials_especie(levels(as.factor(actdf$taxon.name))[i])
+}
+```
+
+    ## [1] "De mitjana Barcelona podria tenir 0 +/- 0 registres de Acacia saligna"
+    ## [1] "De mitjana Barcelona podria tenir 1278 +/- 1221 registres de Cenchrus longisetus"
+    ## [1] "De mitjana Barcelona podria tenir 9025 +/- 4856 registres de Dichondra micrantha"
+    ## [1] "De mitjana Barcelona podria tenir 77 +/- 39 registres de Ipomoea indica"
+    ## [1] "De mitjana Barcelona podria tenir 581 +/- 374 registres de Kalanchoe × houghtonii"
+    ## [1] "De mitjana Barcelona podria tenir 387 +/- 102 registres de Lantana"
+    ## [1] "De mitjana Barcelona podria tenir 1782 +/- 331 registres de Lantana camara"
+    ## [1] "De mitjana Barcelona podria tenir 3486 +/- 2612 registres de Ligustrum lucidum"
+    ## [1] "De mitjana Barcelona podria tenir 2634 +/- 1263 registres de Mesembryanthemum cordifolium"
+    ## [1] "De mitjana Barcelona podria tenir 1859 +/- 1801 registres de Mirabilis jalapa"
+    ## [1] "De mitjana Barcelona podria tenir 194 +/- 140 registres de Senecio angulatus"

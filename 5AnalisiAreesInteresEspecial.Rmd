@@ -489,3 +489,30 @@ paste("El percentatge de descoberta és del", round(sum(nrow(actdf_sf_CG), nrow(
 paste("El percentatge de registres faltants és del", round(100-sum(nrow(actdf_sf_CG), nrow(actdf_sf_CD), nrow(actdf_sf_CP)) *100 / mean(valors)),"%")
 ```
 
+Calculem el nombre de registres potencials a la ciutat de Barcelona per a cada espècie:
+```{r}
+reg_potencials_especie <- function(especie){
+actdf_sf_CD_SP <-  actdf_sf_CD[actdf_sf_CD$taxon.name==especie,]
+actdf_sf_CP_SP <- actdf_sf_CP[actdf_sf_CP$taxon.name==especie,] 
+actdf_sf_CG_SP <- actdf_sf_CG[actdf_sf_CG$taxon.name==especie,]
+
+valors_SP <- c((areaBCN*nrow(actdf_sf_CD_SP)/areaCD), (areaBCN*nrow(actdf_sf_CG_SP)/areaCD), (areaBCN*nrow(actdf_sf_CP_SP)/areaCD))
+
+print(paste("De mitjana Barcelona podria tenir", round(mean(valors_SP)),"+/-", round(se(valors_SP)), "registres de", especie))
+}
+
+```
+
+
+Fem un bucle per a totes les espècies:
+```{r}
+for (i in 1:length(levels(as.factor(actdf$taxon.name)))){
+    reg_potencials_especie(levels(as.factor(actdf$taxon.name))[i])
+}
+
+```
+
+
+
+
+
