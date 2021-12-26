@@ -433,11 +433,45 @@ analisi_AIE_especie("Senecio angulatus", "goldenrod2")
 
 
 ### D - Similitud entre AIEs
-D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
+D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?).
+
+En primer lloc cal reorganitzar les dades per a fer un anàlisi de distàncies. Fem una funció per a obtenir les dades de densitat per especie tal i com feiem en l'anterior apartat:
 ```{r}
+df_AIE_especie <- function(especie){
+df_especie <-actdf_sf[actdf_sf$taxon.name==especie,]
 
-### PENDENT!
+vectorres <- c()
+x <- 1
+for (i in llistatAIE){
+  vectorres[x]<- densitat_global(df_especie, get(i)) 
+  x<- x+1
+}
 
+return(vectorres)
+}
+
+df_AIE_especie("Senecio angulatus")
+```
+
+Fem un bucle per espècies:
+```{r, warning=FALSE, error=FALSE, message=FALSE}
+df_densitats_especies <- data.frame(AIE=llistatAIE, tipus= c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri"))
+
+llistat_sp_interes <- c("Acacia saligna", "Cenchrus longisetus", "Dichondra micrantha",  "Ipomoea indica",  "Kalanchoe × houghtonii" , "Lantana camara"  , "Ligustrum lucidum" ,"Mesembryanthemum cordifolium", "Mirabilis jalapa" , "Senecio angulatus")
+
+for (i in 1:length(levels(as.factor(llistat_sp_interes)))){
+  a <- df_AIE_especie(levels(as.factor(llistat_sp_interes))[i])
+  df_densitats_especies[,i+2] <- a
+}
+
+# posem els noms de les espècies
+names(df_densitats_especies) <- c("AIE", "tipus", llistat_sp_interes)
+head(df_densitats_especies)
+```
+
+Ara ja podem calcular les disimilaritats entre espais:
+```{r}
+# pendent
 ```
 
 

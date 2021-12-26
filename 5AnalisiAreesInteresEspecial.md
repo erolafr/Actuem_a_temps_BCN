@@ -859,10 +859,124 @@ analisi_AIE_especie("Senecio angulatus", "goldenrod2")
 
 ### D - Similitud entre AIEs
 
-D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?)
+D. Hi ha **similitud** entre la quantitat i proporció d'espècies trobades en les AIEs de la mateixa classe? (P.ex. són més similars els diferents cementiris entre ells que amb els carrers?).
+
+En primer lloc cal reorganitzar les dades per a fer un anàlisi de distàncies. Fem una funció per a obtenir les dades de densitat per especie tal i com feiem en l'anterior apartat:
 
 ``` r
-### PENDENT!
+df_AIE_especie <- function(especie){
+df_especie <-actdf_sf[actdf_sf$taxon.name==especie,]
+
+vectorres <- c()
+x <- 1
+for (i in llistatAIE){
+  vectorres[x]<- densitat_global(df_especie, get(i)) 
+  x<- x+1
+}
+
+return(vectorres)
+}
+
+df_AIE_especie("Senecio angulatus")
+```
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout all
+    ## geometries
+
+    ## st_as_s2(): dropping Z and/or M coordinate
+
+    ##  [1]   0.4446560   3.1795550   0.8925607   0.0000000   0.0000000   0.0000000
+    ##  [7]  81.7994608  14.9402487   0.0000000   0.0000000 109.9616263
+
+Fem un bucle per espècies:
+
+``` r
+df_densitats_especies <- data.frame(AIE=llistatAIE, tipus= c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri"))
+
+llistat_sp_interes <- c("Acacia saligna", "Cenchrus longisetus", "Dichondra micrantha",  "Ipomoea indica",  "Kalanchoe × houghtonii" , "Lantana camara"  , "Ligustrum lucidum" ,"Mesembryanthemum cordifolium", "Mirabilis jalapa" , "Senecio angulatus")
+
+for (i in 1:length(levels(as.factor(llistat_sp_interes)))){
+  a <- df_AIE_especie(levels(as.factor(llistat_sp_interes))[i])
+  df_densitats_especies[,i+2] <- a
+}
+
+# posem els noms de les espècies
+names(df_densitats_especies) <- c("AIE", "tipus", llistat_sp_interes)
+head(df_densitats_especies)
+```
+
+    ##          AIE     tipus Acacia saligna Cenchrus longisetus Dichondra micrantha
+    ## 1 barcelones Barcelona      0.2257484           0.5335872            1.819669
+    ## 2         CD    Carrer      0.0000000          25.4364400          122.412867
+    ## 3         CG    Carrer      0.0000000           0.8925607           61.586687
+    ## 4         CP    Carrer      0.0000000           0.0000000           45.539449
+    ## 5         SP Superilla      0.0000000           0.0000000            0.000000
+    ## 6         SA Superilla      8.1858355           0.0000000            0.000000
+    ##   Ipomoea indica Kalanchoe × houghtonii Lantana camara Ligustrum lucidum
+    ## 1      0.4036109              0.5883141      0.5677915          22.28069
+    ## 2      0.7948887              3.1795550     10.3335537          58.82177
+    ## 3      0.8925607              9.8181675     18.7437743          14.28097
+    ## 4      0.0000000              0.0000000     54.6473387           0.00000
+    ## 5      0.0000000             43.8098016     13.1429405           4.38098
+    ## 6      0.0000000              0.0000000      0.0000000           0.00000
+    ##   Mesembryanthemum cordifolium Mirabilis jalapa Senecio angulatus
+    ## 1                     2.291689        1.3681724         0.4446560
+    ## 2                    27.821106       37.3597712         3.1795550
+    ## 3                    28.561942        0.8925607         0.8925607
+    ## 4                     4.553945        0.0000000         0.0000000
+    ## 5                    65.714702       52.5717619         0.0000000
+    ## 6                     0.000000        0.0000000         0.0000000
+
+Ara ja podem calcular les disimilaritats entre espais:
+
+``` r
+# pendent
 ```
 
 ## Carrers amb Absències i presencies vs el global de la ciutat
