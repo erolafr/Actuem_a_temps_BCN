@@ -1,5 +1,5 @@
 # Actuem_a_temps_BCN
-Resultats del projecte **"Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona"**. Més informació del projecte: www.actuematemps.barcelona. 
+Resultats del projecte **"Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona"**. Més informació del projecte: www.actuematemps.barcelona. Podreu trobar explicació del codi i dels resultats al canal de [Youtube del projecte](https://www.youtube.com/channel/UCWqPHUAd-S1ov9pkDZcrU0w).
 
 
 
@@ -9,7 +9,7 @@ L'anàlisi es divideix en diferents arxius numerats a executar seqüencialment. 
 3. [AddicioDades.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/3AddicioDades.md): Addició de dades d'altres fonts per a completar el dataset.
 4. [MapesDensitatsFinals.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/4MapesDensitatsFinals.md): Construcció de mapes de registres totals, per espècie i de densitat total i per espècie.
 5. [AnalisiAreesInteresEspecial.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/5AnalisiAreesInteresEspecial.md): Anàlisi de resultats d'arees d'interès especial
-
+6. [AltresAnàlisis.md](https://github.com/erolafr/Actuem_a_temps_BCN/blob/main/6AltresAn%C3%A0lisis.md): Proposta de futurs anàlisis a realitzar
 
 Analista de dades: [Erola Fenollosa](https://erolafenollosa.weebly.com/).
 
