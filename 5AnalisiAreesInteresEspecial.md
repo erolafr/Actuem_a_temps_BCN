@@ -15,6 +15,10 @@ library(dplyr)
 library(tidyverse)
 library(gridExtra)
 library(pgirmess)
+library(vegan)
+library(magrittr)
+library(ggpubr)
+library(MASS)
 ```
 
 Carreguem les dades obtingudes en els anteriors scripts:
@@ -741,7 +745,9 @@ Sí hi ha diferències entre tipus d'AIE, específicament entre les superilles i
 
 ### C - Densitat per espècie
 
-Passem a la tercera pregunta, ens plantejave,: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi. Previament testo a banda el compliment de les assumpcions de la ANOVA per a cada espècie. No es compleixen les condicions en cap de manera que és necesari aplicar un test no paramètric. Opto pel test de Kruskal-Wallis, l'incorporo a la funció.
+Passem a la tercera pregunta, ens plantejavem: C. Hi ha diferències entre la **densitat** de registres per a **cadascuna de les espècies** susceptibles a ser invasores entre el global de la ciutat, en carrers, superilles, i cementiris? Per tant repetim l'anàlisi anterior filtrant per a cadascuna de les espècies susceptibles a ser invasores. Fem una funció per a no repetir tant de codi.
+
+Previament testo a banda el compliment de les assumpcions de la ANOVA per a cada espècie. No es compleixen les condicions en cap de manera que és necesari aplicar un test no paramètric. Opto pel test de Kruskal-Wallis, l'incorporo a la funció.
 
 ``` r
 analisi_AIE_especie <- function(especie, colorespecie){
@@ -876,63 +882,7 @@ for (i in llistatAIE){
 
 return(vectorres)
 }
-
-df_AIE_especie("Senecio angulatus")
 ```
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ## Warning: attribute variables are assumed to be spatially constant throughout all
-    ## geometries
-
-    ## st_as_s2(): dropping Z and/or M coordinate
-
-    ##  [1]   0.4446560   3.1795550   0.8925607   0.0000000   0.0000000   0.0000000
-    ##  [7]  81.7994608  14.9402487   0.0000000   0.0000000 109.9616263
 
 Fem un bucle per espècies:
 
@@ -973,11 +923,223 @@ head(df_densitats_especies)
     ## 5                    65.714702       52.5717619         0.0000000
     ## 6                     0.000000        0.0000000         0.0000000
 
-Ara ja podem calcular les disimilaritats entre espais:
+Ara ja podem calcular les disimilaritats entre espais. Hi ha diversos mètodes. Podriem fer-ho a través d'un PCA, però la variància explicada pels dos primers components és baixa (54.98%):
 
 ``` r
-# pendent
+pca_act <- prcomp(df_densitats_especies[,3:12], scale = TRUE)
+summary(pca_act)
 ```
+
+    ## Importance of components:
+    ##                           PC1    PC2    PC3    PC4     PC5     PC6     PC7
+    ## Standard deviation     1.8568 1.4319 1.1725 1.0963 0.89683 0.69994 0.58316
+    ## Proportion of Variance 0.3448 0.2050 0.1375 0.1202 0.08043 0.04899 0.03401
+    ## Cumulative Proportion  0.3448 0.5498 0.6873 0.8075 0.88789 0.93688 0.97089
+    ##                            PC8     PC9    PC10
+    ## Standard deviation     0.47628 0.23646 0.09138
+    ## Proportion of Variance 0.02268 0.00559 0.00083
+    ## Cumulative Proportion  0.99357 0.99917 1.00000
+
+Opto per tant per altres mètodes de reducció de dimensions que mantinguin major proporció d'informació, per exemple escalament multidimensional (MDS):
+
+``` r
+# Cmpute MDS
+mds <- df_densitats_especies[,3:12] %>%
+  dist() %>%          
+  cmdscale() %>%
+  as_tibble()
+colnames(mds) <- c("Dim.1", "Dim.2")
+# Plot MDS
+ggscatter(mds, x = "Dim.1", y = "Dim.2", 
+          label = df_densitats_especies$AIE,
+          size = 1, title="MDS Clàssic", # repel = TRUE
+          )
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-32-1.png)
+
+``` r
+mds$tipus <- df_densitats_especies$tipus
+
+ggscatter(mds, x = "Dim.1", y = "Dim.2", color = "tipus",  palette = c("firebrick3", "darkolivegreen3","coral", "cadetblue3"),size = 1, repel = TRUE, mean.point = TRUE, star.plot =TRUE, ggtheme= theme_bw())
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-33-1.png)
+
+``` r
+#Per a veure elipsis calen rèpliques, no n'hi ha per Barcelona.
+mds1 <- mds[-1,]
+ggscatter(mds1, x = "Dim.1", y = "Dim.2", color = "tipus",  palette = c("darkolivegreen3","coral", "cadetblue3"),size = 1, repel = TRUE,  ellipse = TRUE, mean.point = TRUE, star.plot =TRUE,ellipse.type = "confidence", conf.int = TRUE, ggtheme= theme_bw())
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-33-2.png)
+
+Apliquem PERMANOVA sobre les dades per a entendre si hi ha diferències entre els tipus de AIE:
+
+``` r
+df_densitats_especies1 <- df_densitats_especies[-1,]
+adonis(df_densitats_especies1[,3:12] ~ tipus, data= df_densitats_especies1, permutations=999) 
+```
+
+    ## 
+    ## Call:
+    ## adonis(formula = df_densitats_especies1[, 3:12] ~ tipus, data = df_densitats_especies1,      permutations = 999) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
+    ## tipus      2    1.5528 0.77641  3.6402 0.50982  0.001 ***
+    ## Residuals  7    1.4930 0.21329         0.49018           
+    ## Total      9    3.0458                 1.00000           
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+L'anàlisi PERMANOVA indica que hi ha diferències entre el tipus d'AIE. Fem comparacions 2 a 2 per veure entre quins grups es troben aquestes diferències:
+
+``` r
+d1 <- df_densitats_especies1[df_densitats_especies1$tipus==c("Carrer") | df_densitats_especies1$tipus==c("Superilla"),]
+adonis(d1[,3:12] ~ tipus, data= d1, permutations=999) 
+```
+
+    ## 'nperm' >= set of all permutations: complete enumeration.
+
+    ## Set of permutations < 'minperm'. Generating entire set.
+
+    ## 
+    ## Call:
+    ## adonis(formula = d1[, 3:12] ~ tipus, data = d1, permutations = 999) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 119
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)
+    ## tipus      1   0.50509 0.50509   1.932 0.39173    0.1
+    ## Residuals  3   0.78430 0.26143         0.60827       
+    ## Total      4   1.28939                 1.00000
+
+``` r
+d1 <- df_densitats_especies1[df_densitats_especies1$tipus==c("Carrer") | df_densitats_especies1$tipus==c("Cementiri"),]
+adonis(d1[,3:12] ~ tipus, data= d1, permutations=999) 
+```
+
+    ## 
+    ## Call:
+    ## adonis(formula = d1[, 3:12] ~ tipus, data = d1, permutations = 999) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)  
+    ## tipus      1    1.1185  1.1185  6.7585 0.52972  0.015 *
+    ## Residuals  6    0.9930  0.1655         0.47028         
+    ## Total      7    2.1115                 1.00000         
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+d1 <- df_densitats_especies1[df_densitats_especies1$tipus==c("Superilla") | df_densitats_especies1$tipus==c("Cementiri"),]
+adonis(d1[,3:12] ~ tipus, data= d1, permutations=999)
+```
+
+    ## Set of permutations < 'minperm'. Generating entire set.
+
+    ## 
+    ## Call:
+    ## adonis(formula = d1[, 3:12] ~ tipus, data = d1, permutations = 999) 
+    ## 
+    ## Permutation: free
+    ## Number of permutations: 5039
+    ## 
+    ## Terms added sequentially (first to last)
+    ## 
+    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)  
+    ## tipus      1   0.57921 0.57921   2.396 0.32396  0.089 .
+    ## Residuals  5   1.20870 0.24174         0.67604         
+    ## Total      6   1.78791                 1.00000         
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Únicament hi ha diferències entre carrers i cementiris. Vegem bé en què es diferencien a través d'entendre la correlació de les espècies sobre l'espai multidimensional:
+
+``` r
+res.cor <- cor(as.data.frame(df_densitats_especies[, 3:12]), method = "spearman")
+
+mds.cor <- (1 - res.cor) %>%
+  cmdscale() %>%
+  as_tibble()
+
+colnames(mds.cor) <- c("Dim.1", "Dim.2")
+ggscatter(mds.cor, x = "Dim.1", y = "Dim.2", 
+          size = 1, 
+          label = colnames(df_densitats_especies[, 3:12]),
+          repel = TRUE)
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-36-1.png)
+
+Mirem quines espècies tenen significació sobre la variabilitat dels diferents punts:
+
+``` r
+selected <- df_densitats_especies[, 3:12] # seleccionem les dades
+
+mds <- as.data.frame(selected) %>% 
+  dist() %>%          
+  cmdscale() %>%
+  as_tibble()
+
+dune.spp.fit <- envfit(mds, selected, permutations = 999) # per veure la significació de les espècies.
+head(dune.spp.fit)
+```
+
+    ## $vectors
+    ##                                    V1       V2     r2 Pr(>r)    
+    ## Acacia saligna               -0.60632 -0.79522 0.0783  0.373    
+    ## Cenchrus longisetus           0.04165  0.99913 0.3906  0.114    
+    ## Dichondra micrantha          -0.58597 -0.81033 0.1894  0.336    
+    ## Ipomoea indica               -0.59990 -0.80008 0.2081  0.357    
+    ## Kalanchoe × houghtonii        0.96209 -0.27273 0.7343  0.025 *  
+    ## Lantana camara                0.64196 -0.76673 0.6872  0.041 *  
+    ## Ligustrum lucidum            -0.49933 -0.86641 0.0314  0.872    
+    ## Mesembryanthemum cordifolium  0.49862  0.86682 0.9923  0.001 ***
+    ## Mirabilis jalapa              0.88276 -0.46982 0.9985  0.001 ***
+    ## Senecio angulatus             0.96698  0.25483 0.4652  0.145    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## Permutation: free
+    ## Number of permutations: 999
+    ## 
+    ## $factors
+    ## NULL
+    ## 
+    ## $na.action
+    ## function (object, ...) 
+    ## UseMethod("na.action")
+    ## <bytecode: 0x0000000013d334e8>
+    ## <environment: namespace:stats>
+
+Construim el gràfic només amb les correlacions significatives:
+
+``` r
+speciesfit <- envfit(mds, selected) 
+
+colors <- c("firebrick3", "darkolivegreen3","coral", "cadetblue3")
+
+
+ordiplot(mds, display='si', type="n", main="Espècies amb p-valor < 0.05 sobre la variabilitat de les AIE")
+points (mds, col =  colors[as.factor(df_densitats_especies$tipus)],pch=16)#as.factor(df_densitats_especies$tipus))
+plot(speciesfit, p.max = 0.05, col="grey30") # només les espècies significatives.
+legend("topright", legend=c("Barcelona","Carrers", "Superilles", "Cementiris"),
+       fill=c("firebrick3", "darkolivegreen3","coral", "cadetblue3"), cex=0.8)
+```
+
+![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-38-1.png)
 
 ## Carrers amb Absències i presencies vs el global de la ciutat
 

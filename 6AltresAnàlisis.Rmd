@@ -1,0 +1,24 @@
+---
+title: "6AltresAnàlisis"
+author: "ErolaFenollosa"
+date: "27 desembre de 2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Altres anàlisis
+Ara podem preguntar-nos altres coses a partir del dataset i resultats obtinguts. A continuació deixo idees per a futurs anàlisis.
+
+### Distància mitjana entre registres
+Ens podriem preguntar, amb el dataset a les mans, quina és la distància mitjana entre registres per a cadascuna de les espècies, per intentar entendre l'estructura de registres a la ciutat. Responen a una distribució centrada en un nucli? En molts? Sense agrupació?
+
+Per a fer-ho simlement cal calcular les distàncies entre registres per a cada espècie i entendre la seva distribució a través d'un gràfic de densitat o un histograma. Podem utilitzar la distància euclidiana o fer ús d'altres mètriques de distància considerant l'estructura de la ciutat.
+
+### Distància a zones no urbanes
+Quants registres hi ha prop de zones no urbanes? Quina espècie té menys distància a zones no urbanes? Per a respondre-ho caldria delimitar en primer lloc els limits de les zones naturals o no urbanes d'interès i calcular la distància dels registres. Altre cop podem fer ús de la distància euclidiana o altres mesures de distància més apropiades per l'entorn urbà.
+
+### Proporció de registres declarats com a cautius
+Una de les categories del dataset descarregat de iNaturalist és si l'espècie es troba cautiva o cultivada. Podriem calcular el percentatge de registres de cada espècie que són cultivats o cautius per entendre la seva relació amb l'home. Addicionalment podriem revisar les fotografies per a categoritzar també si es tracta d'una espècie en un test, en un balcó, en un escocell, etc.
