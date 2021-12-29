@@ -212,6 +212,17 @@ Mostrem els resultats de densitat global per espècie ordenats:
 arees[order(arees$densitat.global),]
 ```
 
+Grafiquem-ho:
+```{r}
+rbPal <- colorRampPalette(c('#f0f9e8','#0868ac'))
+colorsllegenda<- c("#f0f9e8","#0868ac")
+
+datcol <- rbPal(10)[as.numeric(cut(arees$densitat.global,breaks = 10))]
+
+plot(districtes, col=datcol, main = "Densitat global d'espècies susceptibles \n a ser invasores")
+legend('topright', legend=c(round(min(arees$densitat.global),1), round(max(arees$densitat.global),1)), col=colorsllegenda, pch=16)
+```
+
 
 Ara calculem la densitat per districte per a cada espècie, redefinim la funció per a fer-ho:
 ```{r,  warning=FALSE, error=FALSE, message=FALSE}
@@ -246,32 +257,33 @@ d_acacia <- num_registres_especie("Acacia saligna")/arees$area
 
 Grafiquem-ho:
 ```{r}
-rbPal <- colorRampPalette(c('#a5d96a','#d7191c'))
+rbPal <- colorRampPalette(c('#f0f9e8','#0868ac'))
+colorsllegenda<- c("#f0f9e8","#0868ac")
 par(mfrow=c(2,3))
 
 datcol <- rbPal(100)[as.numeric(cut(d_aptenia,breaks = 100))]
 plot(districtes, col=datcol, main = "Aptenia cordifolia \n per km2")
-legend('bottomleft', legend=c(round(min(d_aptenia),2), round(max(d_aptenia),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_aptenia),2), round(max(d_aptenia),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_dichondra,breaks = 100))]
 plot(districtes, col=datcol, main = "Dichondra micrantha \n per km2")
-legend('bottomleft', legend=c(round(min(d_dichondra),2), round(max(d_dichondra),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_dichondra),2), round(max(d_dichondra),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_mirabilis,breaks = 100))]
 plot(districtes, col=datcol, main = "Mirabilis jalapa \n per km2")
-legend('bottomleft', legend=c(round(min(d_mirabilis),2), round(max(d_mirabilis),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_mirabilis),2), round(max(d_mirabilis),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_ligustrum,breaks = 100))]
 plot(districtes, col=datcol, main = "Ligustrum lucidum \n per km2")
-legend('bottomleft', legend=c(round(min(d_ligustrum),2), round(max(d_ligustrum),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_ligustrum),2), round(max(d_ligustrum),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_kalanchoe,breaks = 100))]
 plot(districtes, col=datcol, main = "Kalanchoe × houghtonii \n per km2")
-legend('bottomleft', legend=c(round(min(d_kalanchoe),2), round(max(d_kalanchoe),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_kalanchoe),2), round(max(d_kalanchoe),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_lantana,breaks = 100))]
 plot(districtes, col=datcol, main = "Lantana camara \n per km2")
-legend('bottomleft', legend=c(round(min(d_lantana),2), round(max(d_lantana),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_lantana),2), round(max(d_lantana),2)), col=colorsllegenda, pch=16)
 
 ```
 
@@ -280,20 +292,20 @@ par(mfrow=c(2,2))
 
 datcol <- rbPal(100)[as.numeric(cut(d_cenchrus,breaks = 100))]
 plot(districtes, col=datcol, main = "Cenchrus longisetus \n per km2")
-legend('bottomleft', legend=c(round(min(d_cenchrus),2), round(max(d_cenchrus),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_cenchrus),2), round(max(d_cenchrus),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_senecio,breaks = 100))]
 plot(districtes, col=datcol, main = "Senecio angulatus \n per km2")
-legend('bottomleft', legend=c(round(min(d_senecio),2), round(max(d_senecio),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_senecio),2), round(max(d_senecio),2)), col=colorsllegenda, pch=16)
 
 datcol <- rbPal(100)[as.numeric(cut(d_ipomoea,breaks = 100))]
 plot(districtes, col=datcol, main = "Ipomoea indica \n per km2")
-legend('bottomleft', legend=c(round(min(d_ipomoea),2), round(max(d_ipomoea),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_ipomoea),2), round(max(d_ipomoea),2)), col=colorsllegenda, pch=16)
 
 
 datcol <- rbPal(100)[as.numeric(cut(d_acacia,breaks = 100))]
 plot(districtes, col=datcol, main = "Acacia saligna \n per km2")
-legend('bottomleft', legend=c(round(min(d_acacia),2), round(max(d_acacia),2)), col=c("#a5d96a","#d7191c"), pch=16)
+legend('bottomleft', legend=c(round(min(d_acacia),2), round(max(d_acacia),2)), col=colorsllegenda, pch=16)
 
 ```
 

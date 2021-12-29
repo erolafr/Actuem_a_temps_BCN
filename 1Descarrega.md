@@ -5,15 +5,9 @@ Erola Fenollosa
 
 ## Introducció i descarrega de paquets
 
-L’objectiu d’aquest codi és la descàrrega de les dades de iNaturalist i
-el filtratge i neteja de les mateixes amb R. És el primer pas del cicle
-d’anàlisi de les dades. L’adquisició i revisió d’aquestes. El projecte
-de iNaturalist del qual volem descarregar la informació és:
-<https://www.inaturalist.org/projects/especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps?tab=observations&subtab=table>.
+L'objectiu d'aquest codi és la descàrrega de les dades de iNaturalist i el filtratge i neteja de les mateixes amb R. És el primer pas del cicle d'anàlisi de les dades. L'adquisició i revisió d'aquestes. El projecte de iNaturalist del qual volem descarregar la informació és: <https://www.inaturalist.org/projects/especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps?tab=observations&subtab=table>.
 
-Un dels paquets que podem requerir és ‘rinat’
-<https://github.com/ropensci/rinat>, Un paquet desenvolupat per accedir
-a les dades de ‘iNaturalist’ a través de APIs.
+Un dels paquets que podem requerir és 'rinat' <https://github.com/ropensci/rinat>, Un paquet desenvolupat per accedir a les dades de 'iNaturalist' a través de APIs.
 
 Carreguem els paquets necesaris:
 
@@ -35,18 +29,15 @@ Més info i exemples sobre el paquet rinat:
 # vignette("rinat-intro", package = "rinat")
 ```
 
-### 1\. Descàrrega de les dades del Projecte a iNaturalist
+### 1. Descàrrega de les dades del Projecte a iNaturalist
 
-Per a descarregar les dades del projecte podem utilitzar la funció
-get\_inat\_obs\_project() del paquet rinat. Amb el parametre type
-indiquem que volem descarregar les observacions i amb Raw = false
-descarreguem un datarfame.
+Per a descarregar les dades del projecte podem utilitzar la funció get\_inat\_obs\_project() del paquet rinat. Amb el parametre type indiquem que volem descarregar les observacions i amb Raw = false descarreguem un datarfame.
 
 ``` r
 act <- get_inat_obs_project("especies-susceptibles-a-ser-invasores-a-barcelona-actuem-a-temps", type = "observations", raw=FALSE)
 ```
 
-### 2\. Revisió del dataset i comptatge de registres
+### 2. Revisió del dataset i comptatge de registres
 
 Visualitzem els noms de les variables del dataset descarregat
 
@@ -98,21 +89,19 @@ Comptabilitzem el nombre de registres considerant la data actual:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(act)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-16 ) del projecte és:  1441"
+    ## [1] "El nombre de registres actual (En data: 2021-12-29 ) del projecte és:  1452"
 
-### 3\. Filtrem per precisió geogràfica
+### 3. Filtrem per precisió geogràfica
 
-Revisem els rangs de les diferents variables numèriques. Fem un
-histograma:
+Revisem els rangs de les diferents variables numèriques. Fem un histograma:
 
 ``` r
 hist(act$positional_accuracy)
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](1Descarrega_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
-És destacable el fet que hi ha algunes dades amb una precisió geogràfica
-molt alta. Tenen poc sentit, Revisem el valor màxim:
+És destacable el fet que hi ha algunes dades amb una precisió geogràfica molt alta. Tenen poc sentit, Revisem el valor màxim:
 
 ``` r
 max(act$positional_accuracy, na.rm = TRUE)
@@ -120,9 +109,7 @@ max(act$positional_accuracy, na.rm = TRUE)
 
     ## [1] 2916
 
-Penso que seria necesari filtrar i eliminar aquells registres que no
-tenen una precisió inferior a 300m per exemple. Revisem quants registres
-hi ha discretitzant la variable:
+Penso que seria necesari filtrar i eliminar aquells registres que no tenen una precisió inferior a 300m per exemple. Revisem quants registres hi ha discretitzant la variable:
 
 ``` r
 Categories <- cut(act$positional_accuracy, breaks = c(-Inf,10,50, 100, 300,Inf), labels = c("<10","10-50","50-100", "100-300", ">300"))
@@ -131,17 +118,16 @@ table(Categories)
 
     ## Categories
     ##     <10   10-50  50-100 100-300    >300 
-    ##    1166     152      30      15      31
+    ##    1170     153      30      15      31
 
-Sembla que hi ha 31 registres amb massa poca precisió (\> 300m).
-Eliminem aquests registres:
+Sembla que hi ha 31 registres amb massa poca precisió (&gt; 300m). Eliminem aquests registres:
 
 ``` r
 actp <- act[act$positional_accuracy < 300,]
 hist(actp$positional_accuracy)
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](1Descarrega_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 Revisem els registres actuals:
 
@@ -149,7 +135,7 @@ Revisem els registres actuals:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actp)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-16 ) del projecte és:  1408"
+    ## [1] "El nombre de registres actual (En data: 2021-12-29 ) del projecte és:  1419"
 
 Per especie:
 
@@ -158,19 +144,19 @@ ggplot(actp, aes(x=positional_accuracy, fill=taxon.name)) +
   geom_density(alpha=0.4)
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](1Descarrega_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
-### 4\. Eliminació de registres buits
+### 4. Eliminació de registres buits
 
-Sembla que tenim registres sene nom d’espècie, amb NA
+Sembla que tenim registres sene nom d'espècie, amb NA
 
 ``` r
 unique(actp$taxon.name)
 ```
 
-    ##  [1] "Cenchrus longisetus"          "Kalanchoe × houghtonii"      
-    ##  [3] "Ligustrum lucidum"            "Dichondra micrantha"         
-    ##  [5] "Senecio angulatus"            "Mirabilis jalapa"            
+    ##  [1] "Cenchrus longisetus"          "Ligustrum lucidum"           
+    ##  [3] "Dichondra micrantha"          "Senecio angulatus"           
+    ##  [5] "Mirabilis jalapa"             "Kalanchoe × houghtonii"      
     ##  [7] "Mesembryanthemum cordifolium" NA                            
     ##  [9] "Lantana camara"               "Lantana"                     
     ## [11] "Ipomoea indica"               "Lantana montevidensis"       
@@ -183,9 +169,9 @@ Contem-los:
 sum(is.na(actp$taxon.name))
 ```
 
-    ## [1] 47
+    ## [1] 53
 
-Eliminem aquells registres que no tenen nom d’especie:
+Eliminem aquells registres que no tenen nom d'especie:
 
 ``` r
 actpn <- actp[!is.na(actp$taxon.name),]
@@ -194,7 +180,7 @@ sum(is.na(actpn$taxon.name))
 
     ## [1] 0
 
-### 5\. Gràfic d’acumulació de registres
+### 5. Gràfic d'acumulació de registres
 
 Revisem el nombre de registres en el temps. Primer transformem la data
 
@@ -206,16 +192,15 @@ actpn$observed_on_DATE <- as.Date(actpn$observed_on)
 ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500)
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](1Descarrega_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
-Ara incloem una línia que delimiti la data d’inici del projecte (11 de
-novembre de 2021) i comptabilitzem els registres anteriors i posteriors:
+Ara incloem una línia que delimiti la data d'inici del projecte (11 de novembre de 2021) i comptabilitzem els registres anteriors i posteriors:
 
 ``` r
 ggplot(actpn, aes(observed_on_DATE))+stat_bin(aes(y=cumsum(..count..)),geom="line",bins=500) + geom_vline(xintercept=as.Date("2021-11-06"), linetype=4)
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](1Descarrega_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 Vegem-ho amb nombres absoluts:
 
@@ -226,9 +211,9 @@ table(a)
 
     ## a
     ##   Abans d'iniciar el projecte Després d'iniciar el projecte 
-    ##                           246                          1114
+    ##                           249                          1116
 
-### 6\. Eliminació d’espècies poc representades
+### 6. Eliminació d'espècies poc representades
 
 Primer calculem quants registres totals hi ha de cada espècie:
 
@@ -241,11 +226,11 @@ actpn %>% count(taxon.name, sort = TRUE)
     ## 2           Dichondra micrantha 266
     ## 3              Mirabilis jalapa 201
     ## 4             Ligustrum lucidum 134
-    ## 5        Kalanchoe × houghtonii  87
-    ## 6                Lantana camara  84
+    ## 5        Kalanchoe × houghtonii  90
+    ## 6                Lantana camara  85
     ## 7           Cenchrus longisetus  79
     ## 8             Senecio angulatus  66
-    ## 9                Ipomoea indica  60
+    ## 9                Ipomoea indica  61
     ## 10                      Lantana  32
     ## 11        Lantana montevidensis  10
     ## 12            Lantana × hybrida   2
@@ -260,10 +245,9 @@ ggplot(actpn,aes(x = fct_infreq(taxon.name))) +
     geom_bar(stat = 'count', fill = "coral")+ coord_flip() + xlab("Espècie")+ ylab("Nombre de registres")
 ```
 
-![](1Descarrega_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](1Descarrega_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
-Descartarem aquells taxons que estàn molt poc representats, eliminarem
-els taxons amb menys de 30 registres.
+Descartarem aquells taxons que estàn molt poc representats, eliminarem els taxons amb menys de 30 registres.
 
 ``` r
 recompte <- actpn %>% count(taxon.name, sort = TRUE)
@@ -272,9 +256,9 @@ actpnr <- actpn[actpn$taxon.name %in% recompte_30$taxon.name,]
 unique(actpnr$taxon.name) # Imprimim amb quins taxons continuem l'anàlisi i les dimensions
 ```
 
-    ##  [1] "Cenchrus longisetus"          "Kalanchoe × houghtonii"      
-    ##  [3] "Ligustrum lucidum"            "Dichondra micrantha"         
-    ##  [5] "Senecio angulatus"            "Mirabilis jalapa"            
+    ##  [1] "Cenchrus longisetus"          "Ligustrum lucidum"           
+    ##  [3] "Dichondra micrantha"          "Senecio angulatus"           
+    ##  [5] "Mirabilis jalapa"             "Kalanchoe × houghtonii"      
     ##  [7] "Mesembryanthemum cordifolium" "Lantana camara"              
     ##  [9] "Lantana"                      "Ipomoea indica"
 
@@ -282,25 +266,11 @@ unique(actpnr$taxon.name) # Imprimim amb quins taxons continuem l'anàlisi i les
 dim(actpnr)
 ```
 
-    ## [1] 1346   75
+    ## [1] 1351   75
 
-### 7\. Eliminació de duplicats
+### 7. Eliminació de duplicats
 
-Al tractar-se d’una identificació col·lectiva, és possible que la
-presència d’alguna espècie en un determinat indret hagi estat
-identificada per duplicat. Ens interessa eliminar aquestes
-identificacions duplicades per no esviaixar en nombre final de registres
-però cal assegurar que no es tractava simplement d’individus molt
-propers. Per a fer-ho, proposo filtrar registres d’una mateixa espècie
-amb una elevada proximitat, definint elevada proximitat com a 50cm de
-distància, és a dir 0.5m de distància. Aquest procés es coneix també com
-eliminació d’agregats. Proposo l’ús de la funció
-‘ecospat.occ.desaggregation’(<https://rdrr.io/cran/ecospat/man/ecospat.occ.desaggregation.html>),
-del paquet ‘ecospat’ desenvolupat per Di Cola et al. (2016)
-(<https://rdrr.io/cran/ecospat/>), que permet filtrar registres propers
-en base a una distància a definir per l’usuari i permet identificar
-grups dins del dataset. Abans però caldrà revisar si hi ha duplicats i
-descartarem espècies amb menys de 10 registres.
+Al tractar-se d'una identificació col·lectiva, és possible que la presència d'alguna espècie en un determinat indret hagi estat identificada per duplicat. Ens interessa eliminar aquestes identificacions duplicades per no esviaixar en nombre final de registres però cal assegurar que no es tractava simplement d'individus molt propers. Per a fer-ho, proposo filtrar registres d'una mateixa espècie amb una elevada proximitat, definint elevada proximitat com a 50cm de distància, és a dir 0.5m de distància. Aquest procés es coneix també com eliminació d'agregats. Proposo l'ús de la funció 'ecospat.occ.desaggregation'(<https://rdrr.io/cran/ecospat/man/ecospat.occ.desaggregation.html>), del paquet 'ecospat' desenvolupat per Di Cola et al. (2016) (<https://rdrr.io/cran/ecospat/>), que permet filtrar registres propers en base a una distància a definir per l'usuari i permet identificar grups dins del dataset. Abans però caldrà revisar si hi ha duplicats i descartarem espècies amb menys de 10 registres.
 
 ``` r
 xydf <- data.frame(x=actpnr$latitude, y=actpnr$longitude, by=actpnr$taxon.name) # creem un dataframe per a introduir a la funció. 
@@ -320,16 +290,15 @@ prov <- ecospat.occ.desaggregation(xydf_1, min.dist = 0.008333/1000*0.5, by = 'b
     ## [1] "desaggregate species 9"
     ## [1] "desaggregate species 10"
     ## $initial
-    ## [1] 1345
+    ## [1] 1350
     ## 
     ## $kept
-    ## [1] 1341
+    ## [1] 1346
     ## 
     ## $out
     ## [1] 4
 
-Ara recuperem les dades d’aquests registres que hem seleccionat
-desagregant les dades:
+Ara recuperem les dades d'aquests registres que hem seleccionat desagregant les dades:
 
 ``` r
 prov$mat <- as.numeric(prov$x) * as.numeric(prov$y)
@@ -339,19 +308,19 @@ actpnrf <- subset(actpnrf, select = -c(mat, x, y, by))
 dim(actpnrf) # Revisem nombre de registres
 ```
 
-    ## [1] 1342   75
+    ## [1] 1347   75
 
-### 8\. Exportem el dataset
+### 8. Exportem el dataset
 
 Guardem el dataset:
 
 ``` r
 # Eliminem les variables de tipus list dins del dataset per a poder guardar-lo:
 actpnrfs = subset(actpnrf, select = -c(tag_list, photos))
-write.csv(actpnrfs,"actpnrfs.csv")
+write.csv(actpnrfs,"Datasets/actpnrfs.csv")
 ```
 
-### 9\. Revisió de nombre de registres finals
+### 9. Revisió de nombre de registres finals
 
 Revisem els registres finals:
 
@@ -359,4 +328,4 @@ Revisem els registres finals:
 print(paste("El nombre de registres actual (En data:", Sys.Date(), ") del projecte és: ", dim(actpnrfs)[1]))
 ```
 
-    ## [1] "El nombre de registres actual (En data: 2021-12-16 ) del projecte és:  1342"
+    ## [1] "El nombre de registres actual (En data: 2021-12-29 ) del projecte és:  1347"

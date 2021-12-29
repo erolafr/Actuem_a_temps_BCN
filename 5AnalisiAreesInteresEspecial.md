@@ -143,7 +143,7 @@ actdf_sf <-  actdf %>%
 print(paste("Nº registres totals:", dim(actdf_sf)[1]))
 ```
 
-    ## [1] "Nº registres totals: 4497"
+    ## [1] "Nº registres totals: 4502"
 
 ``` r
 actdf_sf_MM  <- actdf_sf %>% st_intersection(MM)
@@ -156,7 +156,7 @@ print(paste("Nº registres en l'àrea:", nrow(actdf_sf_MM)))
 print(paste("Percentatge registres en l'àrea:", round(nrow(actdf_sf_MM)*100/ dim(actdf_sf)[1],2), "%"))
 ```
 
-    ## [1] "Percentatge registres en l'àrea: 3.96 %"
+    ## [1] "Percentatge registres en l'àrea: 3.95 %"
 
 ## Càlcul de densitat dins de les àrees d'interès especial
 
@@ -258,10 +258,10 @@ graficsAIE(actdf_sf, barcelones)
     ## 1                Acacia saligna  0.2257484
     ## 2           Cenchrus longisetus  0.5335872
     ## 3           Dichondra micrantha  1.8196693
-    ## 4                Ipomoea indica  0.4036109
-    ## 5        Kalanchoe × houghtonii  0.5883141
+    ## 4                Ipomoea indica  0.4104517
+    ## 5        Kalanchoe × houghtonii  0.6088367
     ## 6                       Lantana  0.2189076
-    ## 7                Lantana camara  0.5677915
+    ## 7                Lantana camara  0.5746324
     ## 8             Ligustrum lucidum 22.2806873
     ## 9  Mesembryanthemum cordifolium  2.2916887
     ## 10             Mirabilis jalapa  1.3681724
@@ -654,7 +654,7 @@ densitat_df
 ```
 
     ##           AIE    densitat     tipus
-    ## 1  barcelones   30.742834 Barcelona
+    ## 1  barcelones   30.777038 Barcelona
     ## 2          CD  293.313949    Carrer
     ## 3          CG  139.239466    Carrer
     ## 4          CP  113.848622    Carrer
@@ -909,7 +909,7 @@ head(df_densitats_especies)
     ## 5         SP Superilla      0.0000000           0.0000000            0.000000
     ## 6         SA Superilla      8.1858355           0.0000000            0.000000
     ##   Ipomoea indica Kalanchoe × houghtonii Lantana camara Ligustrum lucidum
-    ## 1      0.4036109              0.5883141      0.5677915          22.28069
+    ## 1      0.4104517              0.6088367      0.5746324          22.28069
     ## 2      0.7948887              3.1795550     10.3335537          58.82177
     ## 3      0.8925607              9.8181675     18.7437743          14.28097
     ## 4      0.0000000              0.0000000     54.6473387           0.00000
@@ -931,14 +931,14 @@ summary(pca_act)
 ```
 
     ## Importance of components:
-    ##                           PC1    PC2    PC3    PC4     PC5     PC6     PC7
-    ## Standard deviation     1.8568 1.4319 1.1725 1.0963 0.89683 0.69994 0.58316
-    ## Proportion of Variance 0.3448 0.2050 0.1375 0.1202 0.08043 0.04899 0.03401
-    ## Cumulative Proportion  0.3448 0.5498 0.6873 0.8075 0.88789 0.93688 0.97089
-    ##                            PC8     PC9    PC10
-    ## Standard deviation     0.47628 0.23646 0.09138
-    ## Proportion of Variance 0.02268 0.00559 0.00083
-    ## Cumulative Proportion  0.99357 0.99917 1.00000
+    ##                           PC1    PC2    PC3    PC4     PC5    PC6     PC7
+    ## Standard deviation     1.8570 1.4316 1.1722 1.0962 0.89689 0.6993 0.58368
+    ## Proportion of Variance 0.3448 0.2049 0.1374 0.1202 0.08044 0.0489 0.03407
+    ## Cumulative Proportion  0.3448 0.5498 0.6872 0.8074 0.88781 0.9367 0.97078
+    ##                           PC8     PC9    PC10
+    ## Standard deviation     0.4775 0.23652 0.09076
+    ## Proportion of Variance 0.0228 0.00559 0.00082
+    ## Cumulative Proportion  0.9936 0.99918 1.00000
 
 Opto per tant per altres mètodes de reducció de dimensions que mantinguin major proporció d'informació, per exemple escalament multidimensional (MDS):
 
@@ -990,10 +990,10 @@ adonis(df_densitats_especies1[,3:12] ~ tipus, data= df_densitats_especies1, perm
     ## 
     ## Terms added sequentially (first to last)
     ## 
-    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
-    ## tipus      2    1.5528 0.77641  3.6402 0.50982  0.001 ***
-    ## Residuals  7    1.4930 0.21329         0.49018           
-    ## Total      9    3.0458                 1.00000           
+    ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)   
+    ## tipus      2    1.5528 0.77641  3.6402 0.50982  0.002 **
+    ## Residuals  7    1.4930 0.21329         0.49018          
+    ## Total      9    3.0458                 1.00000          
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1037,7 +1037,7 @@ adonis(d1[,3:12] ~ tipus, data= d1, permutations=999)
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)  
-    ## tipus      1    1.1185  1.1185  6.7585 0.52972  0.023 *
+    ## tipus      1    1.1185  1.1185  6.7585 0.52972  0.019 *
     ## Residuals  6    0.9930  0.1655         0.47028         
     ## Total      7    2.1115                 1.00000         
     ## ---
@@ -1060,7 +1060,7 @@ adonis(d1[,3:12] ~ tipus, data= d1, permutations=999)
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)  
-    ## tipus      1   0.57921 0.57921   2.396 0.32396  0.089 .
+    ## tipus      1   0.57921 0.57921   2.396 0.32396  0.095 .
     ## Residuals  5   1.20870 0.24174         0.67604         
     ## Total      6   1.78791                 1.00000         
     ## ---
@@ -1100,16 +1100,16 @@ head(dune.spp.fit)
 
     ## $vectors
     ##                                    V1       V2     r2 Pr(>r)    
-    ## Acacia saligna               -0.60632 -0.79522 0.0783  0.382    
-    ## Cenchrus longisetus           0.04165  0.99913 0.3906  0.131    
-    ## Dichondra micrantha          -0.58597 -0.81033 0.1894  0.306    
-    ## Ipomoea indica               -0.59990 -0.80008 0.2081  0.293    
-    ## Kalanchoe × houghtonii        0.96209 -0.27273 0.7343  0.035 *  
-    ## Lantana camara                0.64196 -0.76673 0.6872  0.031 *  
-    ## Ligustrum lucidum            -0.49933 -0.86641 0.0314  0.892    
+    ## Acacia saligna               -0.60632 -0.79522 0.0783  0.392    
+    ## Cenchrus longisetus           0.04165  0.99913 0.3906  0.128    
+    ## Dichondra micrantha          -0.58597 -0.81033 0.1894  0.320    
+    ## Ipomoea indica               -0.59992 -0.80006 0.2090  0.309    
+    ## Kalanchoe × houghtonii        0.96208 -0.27278 0.7343  0.026 *  
+    ## Lantana camara                0.64195 -0.76675 0.6872  0.038 *  
+    ## Ligustrum lucidum            -0.49933 -0.86641 0.0314  0.899    
     ## Mesembryanthemum cordifolium  0.49862  0.86682 0.9923  0.001 ***
     ## Mirabilis jalapa              0.88276 -0.46982 0.9985  0.001 ***
-    ## Senecio angulatus             0.96698  0.25483 0.4652  0.148    
+    ## Senecio angulatus             0.96698  0.25483 0.4652  0.157    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## Permutation: free
@@ -1121,7 +1121,7 @@ head(dune.spp.fit)
     ## $na.action
     ## function (object, ...) 
     ## UseMethod("na.action")
-    ## <bytecode: 0x0000000013d21658>
+    ## <bytecode: 0x00000000140d86a0>
     ## <environment: namespace:stats>
 
 Construim el gràfic només amb les correlacions significatives:
@@ -1169,7 +1169,7 @@ Calculem el nombre de registres i el percentatge que suposen
 print(paste("Nº registres al Barcelonés:", dim(actdf_sf)[1]))
 ```
 
-    ## [1] "Nº registres al Barcelonés: 4497"
+    ## [1] "Nº registres al Barcelonés: 4502"
 
 ``` r
 actdf_sf_CD  <- actdf_sf %>% st_intersection(CD)
@@ -1182,7 +1182,7 @@ print(paste("Nº registres en l'àrea CD:", nrow(actdf_sf_CD)))
 print(paste("Percentatge registres en l'àreaCD:", round(nrow(actdf_sf_CD)*100/ dim(actdf_sf)[1],2), "%"))
 ```
 
-    ## [1] "Percentatge registres en l'àreaCD: 8.21 %"
+    ## [1] "Percentatge registres en l'àreaCD: 8.2 %"
 
 ``` r
 actdf_sf_CG  <- actdf_sf %>% st_intersection(CG)
