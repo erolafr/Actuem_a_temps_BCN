@@ -254,7 +254,7 @@ Generem gràfics per a veure els resultats:
 ```{r}
 ggplot(num_species_found_df, aes(x=AIE, y= num_species_found)) + geom_bar(stat="identity", color="black", fill="lightgreen") + coord_flip() + ylab("Nº espècies trobades") + xlab("Espècie") + labs(title = (paste("Nombre espècies trobades" , deparse(substitute(AIE)))))
 
-ggplot(num_species_found_df, aes(x=AIE, y= num_species_found_density)) + geom_bar(stat="identity", color="black", fill="white") + coord_flip() + ylab("Nº espècies trobades/km2") + xlab("Espècie") + labs(title = (paste("Densitat espècies trobades" , deparse(substitute(AIE)))))
+ggplot(num_species_found_df, aes(x=AIE, y= num_species_found_density)) + geom_bar(stat="identity", color="black", fill="white") + coord_flip() + ylab("Nº espècies trobades/km2") + xlab("AIE") + labs(title = (paste("Densitat espècies trobades" , deparse(substitute(AIE)))))
  
 ```
 
@@ -343,7 +343,7 @@ densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
 densitat_df$tipus <- c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
 densitat_df
 
-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill="gold") + coord_flip() + ylab("Densitat global espècies/km2") + xlab("Espècie") + labs(title = (paste("Densitat global espècies" , deparse(substitute(AIE)))))
+ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill="gold") + coord_flip() + ylab("Densitat global espècies/km2") + xlab("AIE") + labs(title = (paste("Densitat global espècies" , deparse(substitute(AIE)))))
 
 df <- densitat_df %>% 
   group_by(tipus) %>% 
@@ -396,7 +396,7 @@ densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
 densitat_df$tipus <- c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
 #print(densitat_df)
 
-g1<-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill=colorespecie) + ylab("Registres/km2") + xlab("Espècie") + labs(title = (paste("Densitat" , paste(especie))))
+g1<-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill=colorespecie) + ylab("Registres/km2") + xlab("AIE") + labs(title = (paste("Densitat" , paste(especie))))
 
 df <- densitat_df %>% 
   group_by(tipus) %>% 
@@ -560,7 +560,7 @@ ordiplot(mds, display='si', type="n", main="Espècies amb p-valor < 0.05 sobre l
 points (mds, col =  colors[as.factor(df_densitats_especies$tipus)],pch=16)#as.factor(df_densitats_especies$tipus))
 plot(speciesfit, p.max = 0.05, col="grey30") # només les espècies significatives.
 legend("topright", legend=c("Barcelona","Carrers", "Superilles", "Cementiris"),
-       fill=c("firebrick3", "darkolivegreen3","coral", "cadetblue3"), cex=0.8)
+       fill=c("firebrick3", "darkolivegreen3","cadetblue3", "coral"), cex=0.8)
 ```
 
 

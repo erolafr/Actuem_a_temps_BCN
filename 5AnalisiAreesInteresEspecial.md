@@ -469,7 +469,7 @@ ggplot(num_species_found_df, aes(x=AIE, y= num_species_found)) + geom_bar(stat="
 ![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 ``` r
-ggplot(num_species_found_df, aes(x=AIE, y= num_species_found_density)) + geom_bar(stat="identity", color="black", fill="white") + coord_flip() + ylab("Nº espècies trobades/km2") + xlab("Espècie") + labs(title = (paste("Densitat espècies trobades" , deparse(substitute(AIE)))))
+ggplot(num_species_found_df, aes(x=AIE, y= num_species_found_density)) + geom_bar(stat="identity", color="black", fill="white") + coord_flip() + ylab("Nº espècies trobades/km2") + xlab("AIE") + labs(title = (paste("Densitat espècies trobades" , deparse(substitute(AIE)))))
 ```
 
 ![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-18-2.png)
@@ -667,7 +667,7 @@ densitat_df
     ## 11         MS  769.731384 Cementiri
 
 ``` r
-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill="gold") + coord_flip() + ylab("Densitat global espècies/km2") + xlab("Espècie") + labs(title = (paste("Densitat global espècies" , deparse(substitute(AIE)))))
+ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill="gold") + coord_flip() + ylab("Densitat global espècies/km2") + xlab("AIE") + labs(title = (paste("Densitat global espècies" , deparse(substitute(AIE)))))
 ```
 
 ![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-24-1.png)
@@ -763,7 +763,7 @@ densitat_df <- data.frame(AIE = llistatAIE, densitat=vectorres)
 densitat_df$tipus <- c("Barcelona", "Carrer","Carrer","Carrer", "Superilla", "Superilla", "Cementiri", "Cementiri", "Cementiri", "Cementiri", "Cementiri")
 #print(densitat_df)
 
-g1<-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill=colorespecie) + ylab("Registres/km2") + xlab("Espècie") + labs(title = (paste("Densitat" , paste(especie))))
+g1<-ggplot(densitat_df, aes(x=AIE, y= densitat)) + geom_bar(stat="identity", color="black", fill=colorespecie) + ylab("Registres/km2") + xlab("AIE") + labs(title = (paste("Densitat" , paste(especie))))
 
 df <- densitat_df %>% 
   group_by(tipus) %>% 
@@ -1037,7 +1037,7 @@ adonis(d1[,3:12] ~ tipus, data= d1, permutations=999)
     ## Terms added sequentially (first to last)
     ## 
     ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)  
-    ## tipus      1    1.1185  1.1185  6.7585 0.52972  0.015 *
+    ## tipus      1    1.1185  1.1185  6.7585 0.52972  0.023 *
     ## Residuals  6    0.9930  0.1655         0.47028         
     ## Total      7    2.1115                 1.00000         
     ## ---
@@ -1100,16 +1100,16 @@ head(dune.spp.fit)
 
     ## $vectors
     ##                                    V1       V2     r2 Pr(>r)    
-    ## Acacia saligna               -0.60632 -0.79522 0.0783  0.373    
-    ## Cenchrus longisetus           0.04165  0.99913 0.3906  0.114    
-    ## Dichondra micrantha          -0.58597 -0.81033 0.1894  0.336    
-    ## Ipomoea indica               -0.59990 -0.80008 0.2081  0.357    
-    ## Kalanchoe × houghtonii        0.96209 -0.27273 0.7343  0.025 *  
-    ## Lantana camara                0.64196 -0.76673 0.6872  0.041 *  
-    ## Ligustrum lucidum            -0.49933 -0.86641 0.0314  0.872    
+    ## Acacia saligna               -0.60632 -0.79522 0.0783  0.382    
+    ## Cenchrus longisetus           0.04165  0.99913 0.3906  0.131    
+    ## Dichondra micrantha          -0.58597 -0.81033 0.1894  0.306    
+    ## Ipomoea indica               -0.59990 -0.80008 0.2081  0.293    
+    ## Kalanchoe × houghtonii        0.96209 -0.27273 0.7343  0.035 *  
+    ## Lantana camara                0.64196 -0.76673 0.6872  0.031 *  
+    ## Ligustrum lucidum            -0.49933 -0.86641 0.0314  0.892    
     ## Mesembryanthemum cordifolium  0.49862  0.86682 0.9923  0.001 ***
     ## Mirabilis jalapa              0.88276 -0.46982 0.9985  0.001 ***
-    ## Senecio angulatus             0.96698  0.25483 0.4652  0.145    
+    ## Senecio angulatus             0.96698  0.25483 0.4652  0.148    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## Permutation: free
@@ -1121,7 +1121,7 @@ head(dune.spp.fit)
     ## $na.action
     ## function (object, ...) 
     ## UseMethod("na.action")
-    ## <bytecode: 0x0000000013d334e8>
+    ## <bytecode: 0x0000000013d21658>
     ## <environment: namespace:stats>
 
 Construim el gràfic només amb les correlacions significatives:
@@ -1136,7 +1136,7 @@ ordiplot(mds, display='si', type="n", main="Espècies amb p-valor < 0.05 sobre l
 points (mds, col =  colors[as.factor(df_densitats_especies$tipus)],pch=16)#as.factor(df_densitats_especies$tipus))
 plot(speciesfit, p.max = 0.05, col="grey30") # només les espècies significatives.
 legend("topright", legend=c("Barcelona","Carrers", "Superilles", "Cementiris"),
-       fill=c("firebrick3", "darkolivegreen3","coral", "cadetblue3"), cex=0.8)
+       fill=c("firebrick3", "darkolivegreen3","cadetblue3", "coral"), cex=0.8)
 ```
 
 ![](5AnalisiAreesInteresEspecial_files/figure-markdown_github/unnamed-chunk-38-1.png)
