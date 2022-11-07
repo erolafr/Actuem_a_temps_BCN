@@ -1,5 +1,5 @@
 # Actuem_a_temps_BCN
-Resultats del projecte **"Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona"**. Més informació del projecte: www.actuematemps.barcelona. Podreu trobar explicació del codi i dels resultats al canal de [Youtube del projecte](https://www.youtube.com/channel/UCWqPHUAd-S1ov9pkDZcrU0w).
+Resultats del projecte **"Actuem a temps: espècies susceptibles de ser invasores a la ciutat de Barcelona"**. Més informació del projecte: http://actuematempsbcn.weebly.com/. Podreu trobar explicació del codi i dels resultats al canal de [Youtube del projecte](https://www.youtube.com/channel/UCWqPHUAd-S1ov9pkDZcrU0w).
 
 
 
